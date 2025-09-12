@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import BodParagraphEditor from '@/components/BodParagraphEditor'
+import BodParagraphPreview from '@/components/BodParagraphPreview'
+import BodParagraphSearch from '@/components/BodParagraphSearch'
 
 interface BodParagraph {
   id: string
@@ -11,6 +14,13 @@ interface BodParagraph {
   section: string
 }
 
+interface Change {
+  type: 'delete' | 'insert'
+  originalText?: string
+  newText?: string
+  position: number
+}
+
 export default function SubmitPetition() {
   const [formData, setFormData] = useState({
     title: '',
@@ -18,42 +28,122 @@ export default function SubmitPetition() {
     submitterEmail: '',
     submitterOrganization: '',
     bodParagraph: '',
-    petitionType: 'D',
     petitionText: '',
-    rationale: '',
-    financialImpact: false
+    rationale: ''
   })
-  const [bodParagraphs, setBodParagraphs] = useState<BodParagraph[]>([])
   const [selectedParagraph, setSelectedParagraph] = useState<BodParagraph | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [amendmentChanges, setAmendmentChanges] = useState<Change[]>([])
+  const [modifiedParagraphText, setModifiedParagraphText] = useState('')
 
-  // Load BoD paragraphs on mount
-  useEffect(() => {
-    fetch('/api/bod-paragraphs')
-      .then(res => res.json())
-      .then(data => setBodParagraphs(data.paragraphs || []))
-      .catch(err => console.error('Error loading BoD paragraphs:', err))
-  }, [])
+  const samplePetitions = [
+    {
+      title: 'Modify Clergy Housing Allowance Requirements',
+      submitterName: 'Rev. Sarah Mitchell',
+      submitterEmail: 'sarah.mitchell@email.com',
+      submitterOrganization: 'Western North Carolina Annual Conference',
+      bodParagraph: '¶415',
+      petitionText: 'Amend ¶415.6 to provide greater flexibility in clergy housing allowance determinations by removing the requirement that housing allowances be set prior to the beginning of the calendar year. This change would allow annual conferences to adjust housing allowances mid-year in response to unexpected circumstances such as emergency parsonage repairs or significant changes in local housing costs.',
+      rationale: 'Current rigid timing requirements create hardship when unexpected housing situations arise. Clergy families have faced financial strain when emergency repairs or market changes occur after allowances are set. This modification maintains fiscal responsibility while providing necessary flexibility.'
+    },
+    {
+      title: 'Resolution on Climate Justice and Creation Care',
+      submitterName: 'Dr. Michael Rodriguez',
+      submitterEmail: 'mrodriguez@email.com',
+      submitterOrganization: 'California-Pacific Annual Conference',
+      bodParagraph: '¶702',
+      petitionText: 'The United Methodist Church commits to achieving carbon neutrality across all church operations by 2030. We call upon all annual conferences, local churches, and church-related institutions to implement comprehensive sustainability plans, transition to renewable energy sources, and advocate for environmental justice in their communities.',
+      rationale: 'Climate change disproportionately affects the world\'s most vulnerable populations. As disciples of Christ, we are called to care for creation and seek justice for those harmed by environmental degradation. Bold action is needed now.'
+    },
+    {
+      title: 'Expand Annual Conference Legislative Authority',
+      submitterName: 'Bishop Jennifer Walsh',
+      submitterEmail: 'jwalsh@email.com',
+      submitterOrganization: 'Upper New York Annual Conference',
+      bodParagraph: '¶213',
+      petitionText: 'Amend Article IV of the Constitution to grant annual conferences authority to adapt certain disciplinary provisions to their regional contexts, subject to review by the Judicial Council. This would not apply to constitutional amendments or matters of church doctrine.',
+      rationale: 'The diverse contexts of United Methodism globally require greater flexibility in implementation of disciplinary provisions. Regional adaptation while maintaining doctrinal unity would strengthen our connection.'
+    },
+    {
+      title: 'Update Committee on Lay Leadership Requirements',
+      submitterName: 'Mary Johnson',
+      submitterEmail: 'mary.j@email.com',
+      submitterOrganization: 'Oklahoma Annual Conference',
+      bodParagraph: '¶230',
+      petitionText: 'Revise ¶230.4 to require that committees on lay leadership include at least one young adult (ages 18-35) and implement term limits of two consecutive three-year terms for all committee members except the chairperson.',
+      rationale: 'Many committees lack diverse age representation and suffer from stagnation due to indefinite service terms. These changes will bring fresh perspectives and ensure broader participation in lay leadership development.'
+    }
+  ]
+
+  const fillSampleData = () => {
+    const randomPetition = samplePetitions[Math.floor(Math.random() * samplePetitions.length)]
+    
+    // Update form data
+    const newFormData = {
+      title: randomPetition.title,
+      submitterName: randomPetition.submitterName,
+      submitterEmail: randomPetition.submitterEmail,
+      submitterOrganization: randomPetition.submitterOrganization,
+      bodParagraph: randomPetition.bodParagraph,
+      petitionText: randomPetition.petitionText,
+      rationale: randomPetition.rationale
+    }
+    
+    setFormData(newFormData)
+    
+    // Find and set the selected paragraph
+    const paragraph = bodParagraphs.find(p => p.number === randomPetition.bodParagraph)
+    setSelectedParagraph(paragraph || null)
+  }
 
   // Handle BoD paragraph selection
-  const handleBodSelection = (paragraphNumber: string) => {
-    const paragraph = bodParagraphs.find(p => p.number === paragraphNumber)
-    setSelectedParagraph(paragraph || null)
-    setFormData({ ...formData, bodParagraph: paragraphNumber })
+  const handleBodSelection = (paragraph: BodParagraph) => {
+    setSelectedParagraph(paragraph)
+    setFormData({ ...formData, bodParagraph: paragraph.number })
+    
+    // Reset amendment editor state
+    setAmendmentChanges([])
+    setModifiedParagraphText(paragraph.current_text)
+  }
+
+  // Handle amendment editor changes
+  const handleAmendmentChanges = (changes: Change[], modifiedText: string) => {
+    setAmendmentChanges(changes)
+    setModifiedParagraphText(modifiedText)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate that user has made changes using the amendment editor
+    if (!selectedParagraph) {
+      alert('Please select a Book of Discipline paragraph to amend.')
+      return
+    }
+    
+    if (amendmentChanges.length === 0) {
+      alert('Please make changes to the paragraph using the amendment editor above.')
+      return
+    }
+    
     setIsSubmitting(true)
 
     try {
+      // Prepare the submission data with amendment information
+      const submissionData = {
+        ...formData,
+        amendmentData: amendmentChanges.length > 0 ? amendmentChanges : null,
+        originalParagraphText: selectedParagraph?.current_text || null,
+        modifiedParagraphText: modifiedParagraphText ? modifiedParagraphText : null
+      }
+
       const response = await fetch('/api/petitions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(submissionData)
       })
 
       if (response.ok) {
@@ -105,174 +195,141 @@ export default function SubmitPetition() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <Link href="/" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
-              ← Back to Home
-            </Link>
+            <div className="flex items-center justify-between mb-4">
+              <Link href="/" className="text-blue-600 hover:text-blue-800 inline-block">
+                ← Back to Home
+              </Link>
+              <button
+                type="button"
+                onClick={fillSampleData}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm font-medium transition-colors"
+              >
+                Fill Sample Data
+              </button>
+            </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Submit Legislative Petition</h1>
             <p className="text-gray-600">
               Submit your petition for consideration at the next General Conference
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-8">
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Left Column */}
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Petition Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Brief descriptive title for your petition"
-                  />
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Your Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.submitterName}
-                    onChange={(e) => setFormData({...formData, submitterName: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+          <form onSubmit={handleSubmit}>
+            {/* Contact Form */}
+            <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Left Column */}
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Petition Title *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.title}
+                      onChange={(e) => setFormData({...formData, title: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                      placeholder="Brief descriptive title for your petition"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.submitterEmail}
-                    onChange={(e) => setFormData({...formData, submitterEmail: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Your Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.submitterName}
+                      onChange={(e) => setFormData({...formData, submitterName: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Organization/Church
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.submitterOrganization}
-                    onChange={(e) => setFormData({...formData, submitterOrganization: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Annual Conference, Local Church, etc."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Book of Discipline Paragraph *
-                  </label>
-                  <select
-                    required
-                    value={formData.bodParagraph}
-                    onChange={(e) => handleBodSelection(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select a BoD paragraph</option>
-                    {bodParagraphs.map((paragraph) => (
-                      <option key={paragraph.id} value={paragraph.number}>
-                        {paragraph.number} - {paragraph.title}
-                      </option>
-                    ))}
-                  </select>
-                  
-                  {selectedParagraph && (
-                    <div className="mt-3 p-3 bg-blue-50 rounded-md">
-                      <p className="text-sm font-medium text-blue-900 mb-1">
-                        Current Text ({selectedParagraph.section}):
-                      </p>
-                      <p className="text-sm text-blue-800">
-                        {selectedParagraph.current_text}
-                      </p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={formData.submitterEmail}
+                        onChange={(e) => setFormData({...formData, submitterEmail: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                      />
                     </div>
-                  )}
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Organization/Church
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.submitterOrganization}
+                        onChange={(e) => setFormData({...formData, submitterOrganization: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                        placeholder="Annual Conference, Local Church, etc."
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Petition Type *
-                  </label>
-                  <select
-                    required
-                    value={formData.petitionType}
-                    onChange={(e) => setFormData({...formData, petitionType: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="D">Disciplinary</option>
-                    <option value="C">Constitutional</option>
-                    <option value="R">Resolution</option>
-                    <option value="O">Other</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="financialImpact"
-                    checked={formData.financialImpact}
-                    onChange={(e) => setFormData({...formData, financialImpact: e.target.checked})}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="financialImpact" className="ml-2 block text-sm text-gray-700">
-                    This petition has financial implications
-                  </label>
-                </div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Petition Text *
-                  </label>
-                  <textarea
-                    required
-                    rows={8}
-                    value={formData.petitionText}
-                    onChange={(e) => setFormData({...formData, petitionText: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="The specific text of your proposed change or resolution..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Rationale
-                  </label>
-                  <textarea
-                    rows={6}
-                    value={formData.rationale}
-                    onChange={(e) => setFormData({...formData, rationale: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Explain why this change is needed..."
-                  />
+                {/* Right Column */}
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Rationale
+                    </label>
+                    <textarea
+                      rows={6}
+                      value={formData.rationale}
+                      onChange={(e) => setFormData({...formData, rationale: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                      placeholder="Explain why this change is needed..."
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
+          {/* Amendment Editor */}
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <div className="mb-6">
+              <BodParagraphSearch 
+                onSelect={handleBodSelection}
+                selectedParagraph={selectedParagraph}
+              />
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Editor */}
+              <BodParagraphEditor 
+                selectedParagraph={selectedParagraph}
+                onChangesUpdate={handleAmendmentChanges}
+              />
+              
+              {/* Preview */}
+              <BodParagraphPreview 
+                selectedParagraph={selectedParagraph}
+                modifiedText={modifiedParagraphText}
+                changes={amendmentChanges}
+              />
+            </div>
+          </div>
+
             {/* Submit Button */}
-            <div className="mt-8 flex justify-end">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Petition'}
-              </button>
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Petition'}
+                </button>
+              </div>
             </div>
           </form>
         </div>

@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
+    "@types/diff": "^7.0.2",
+    "diff": "^8.0.2",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"

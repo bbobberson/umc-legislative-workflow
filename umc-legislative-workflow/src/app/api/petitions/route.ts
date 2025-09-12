@@ -10,10 +10,11 @@ export async function POST(request: NextRequest) {
       submitterEmail,
       submitterOrganization,
       bodParagraph,
-      petitionType,
       petitionText,
       rationale,
-      financialImpact
+      amendmentData,
+      originalParagraphText,
+      modifiedParagraphText
     } = body
 
     // Insert the petition
@@ -24,20 +25,22 @@ export async function POST(request: NextRequest) {
         submitter_email,
         submitter_organization,
         bod_paragraph,
-        petition_type,
         petition_text,
         rationale,
-        financial_impact
+        amendment_data,
+        original_paragraph_text,
+        modified_paragraph_text
       ) VALUES (
         ${title},
         ${submitterName},
         ${submitterEmail},
         ${submitterOrganization || null},
         ${bodParagraph},
-        ${petitionType},
         ${petitionText},
         ${rationale || null},
-        ${financialImpact}
+        ${amendmentData ? JSON.stringify(amendmentData) : null},
+        ${originalParagraphText || null},
+        ${modifiedParagraphText || null}
       )
       RETURNING id, title, status
     `
