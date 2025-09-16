@@ -139,11 +139,13 @@ npx tsx scripts/fix-committee-duplicates-final.ts
 ```
 
 ### Search Performance
-The secretary dashboard is designed to handle large petition datasets (1000+ records) efficiently:
-- Current implementation uses traditional table rendering with pagination-ready architecture
-- Virtual scrolling capability available via `@tanstack/react-virtual` (73px row height, 10 overscan)
-- Full-text search includes: title, submitter, organization, BoD paragraph, amendment text, committee name, petition type
-- Real-time filtering and sorting without performance degradation
+The secretary dashboard implements high-performance virtual scrolling for large petition datasets (1000+ records):
+- **Virtual scrolling**: Uses `@tanstack/react-virtual` with 73px row height, 10 overscan for optimal performance
+- **Column sorting**: Full sortable columns with visual indicators (click to sort, click again to reverse)
+- **Smart BoD paragraph sorting**: Numeric sorting for paragraph references (¶46, ¶101, ¶415)
+- **Full-text search**: title, submitter, organization, BoD paragraph, amendment text, committee name, petition type
+- **Real-time filtering**: Status filters and search work seamlessly with virtual scrolling
+- **Optimized layout**: Consolidated search controls and action buttons in single-row layout
 
 ## Demo Strategy Notes
 
@@ -171,6 +173,7 @@ The application implements authentic UMC branding following the official UMC bra
 - Blue indicates trustworthy primary actions (submit, save, continue)
 - Minimal header with just UMC cross/flame logo and organization name
 - Clean, professional appearance suitable for church leadership demos
+- **Logo sizing**: UMC brand logo uses `h-20 w-auto` to maintain proper aspect ratio and text readability
 
 ### Tailwind CSS v4 Implementation
 Colors and fonts are defined in `src/app/globals.css` using the `@theme inline` directive:
@@ -207,7 +210,8 @@ If the secretary dashboard has performance issues or display problems:
 1. Check for JavaScript syntax errors in browser console (especially template literal escaping)
 2. Clear Next.js build cache: `rm -rf .next && npm run dev`
 3. Verify database queries are completing successfully in server logs
-4. For large datasets (1000+ records), consider implementing virtual scrolling with `@tanstack/react-virtual`
+4. Virtual scrolling is already implemented - check virtualizer configuration if performance degrades
+5. For sort icon issues, verify SVG paths are rendering correctly (simple arrow icons should display)
 
 ### Database Connection Issues
 All scripts require `.env.local` with valid `POSTGRES_URL`. The Neon serverless client will fail silently if environment variables are missing.
@@ -233,3 +237,25 @@ The system recently migrated from a `petition_text` field to an amendment-based 
 - **Added**: `amendment_data` JSONB field for structured change tracking
 - **Added**: `original_paragraph_text` and `modified_paragraph_text` fields
 - All petition data now focuses on amendments to existing BoD paragraphs
+
+## Virtual Scrolling Implementation Details
+
+The secretary dashboard uses `@tanstack/react-virtual` for high-performance table rendering:
+
+### Configuration
+```typescript
+const virtualizer = useVirtualizer({
+  count: filteredPetitions.length,
+  getScrollElement: () => parentRef.current,
+  estimateSize: () => 73, // Row height in pixels
+  overscan: 10, // Number of items to render outside viewport
+})
+```
+
+### Key Implementation Notes
+- **Row height**: Fixed at 73px for consistent layout
+- **Virtualized rows**: Custom `VirtualTableRow` component handles rendering
+- **Column widths**: Balanced layout with flex-based petition column and fixed-width others
+- **Sorting integration**: Works seamlessly with virtual scrolling - data sorts before virtualization
+- **Selection state**: Maintains checkbox selection across virtual/non-virtual items
+- **Scroll container**: 600px height with overflow-auto for optimal UX
