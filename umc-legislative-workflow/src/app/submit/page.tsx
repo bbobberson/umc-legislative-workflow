@@ -184,8 +184,7 @@ export default function SubmitPetition() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-6 py-8">
-        <div className="max-w-4xl mx-auto">
+      <div className="px-6 py-8 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Submit Legislative Petition</h1>
@@ -211,8 +210,9 @@ export default function SubmitPetition() {
                   </svg>
                 </button>
               </div>
-              <div className="max-w-2xl space-y-8">
-                <div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Title - Full Width */}
+                <div className="lg:col-span-3">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     Petition Title *
                   </label>
@@ -226,32 +226,33 @@ export default function SubmitPetition() {
                   />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Your Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.submitterName}
-                      onChange={(e) => setFormData({...formData, submitterName: e.target.value})}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                    />
-                  </div>
+                {/* Contact Info - 3 Columns */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Your Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.submitterName}
+                    onChange={(e) => setFormData({...formData, submitterName: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                    placeholder="Your full name"
+                  />
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={formData.submitterEmail}
-                      onChange={(e) => setFormData({...formData, submitterEmail: e.target.value})}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.submitterEmail}
+                    onChange={(e) => setFormData({...formData, submitterEmail: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                    placeholder="your.email@example.com"
+                  />
                 </div>
 
                 <div>
@@ -318,9 +319,14 @@ export default function SubmitPetition() {
             {/* Submit Button */}
             <div className="bg-white rounded-lg shadow-lg p-8">
               <div className="flex items-center justify-between">
-                <p className="text-lg font-medium text-gray-700">
-                  Ready to Submit?
-                </p>
+                <div>
+                  <p className="text-xl font-bold text-gray-900 mb-1">
+                    🚀 Ready to Make Your Voice Heard?
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Your petition will be reviewed by the Secretary and assigned to the appropriate committee
+                  </p>
+                </div>
                 <div>
                 <button
                   type="submit"
@@ -333,7 +339,6 @@ export default function SubmitPetition() {
               </div>
             </div>
           </form>
-        </div>
       </div>
     </div>
   )

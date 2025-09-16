@@ -51,7 +51,7 @@ export default function UmcHeader({ showBackButton = false, backButtonText = "Ba
               <img 
                 src="/BrandPromise_Eng_CLR.svg" 
                 alt="The United Methodist Church"
-                className="h-16 w-auto"
+                className="h-20 w-auto"
               />
             </Link>
 

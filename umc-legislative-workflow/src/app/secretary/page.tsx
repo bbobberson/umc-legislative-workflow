@@ -536,8 +536,8 @@ export default function SecretaryDashboard() {
         <div>
             {/* Search and Filters */}
             <div className="bg-white rounded-lg shadow mb-6 p-6">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
+              <div className="flex flex-col lg:flex-row gap-4 items-end">
+                <div className="flex-1 min-w-0">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Search Petitions
                   </label>
@@ -549,7 +549,7 @@ export default function SecretaryDashboard() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                   />
                 </div>
-                <div className="md:w-48">
+                <div className="w-48">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Status Filter
                   </label>
@@ -563,6 +563,105 @@ export default function SecretaryDashboard() {
                     <option value="under_review">Under Review</option>
                     <option value="assigned">Assigned</option>
                   </select>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowWorkloadPopover(!showWorkloadPopover)}
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 font-medium whitespace-nowrap"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      Committee Workload
+                    </button>
+                    
+                    {/* Workload Popover */}
+                    {showWorkloadPopover && (
+                      <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                        <div className="px-4 py-3 border-b border-gray-200">
+                          <h3 className="text-lg font-medium text-gray-900">Committee Workload</h3>
+                        </div>
+                        <div className="p-4">
+                          <div className="space-y-3">
+                            {committees
+                              .sort((a, b) => (b.petition_count || 0) - (a.petition_count || 0))
+                              .map(committee => {
+                                const count = committee.petition_count || 0
+                                const maxCount = Math.max(...committees.map(c => c.petition_count || 0))
+                                const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0
+                                
+                                return (
+                                  <div key={committee.id} className="space-y-1">
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-gray-700 truncate">{committee.name}</span>
+                                      <span className="text-gray-900 font-medium">{count}</span>
+                                    </div>
+                                    <div className="w-full bg-gray-200 rounded-full h-2">
+                                      <div 
+                                        className={`h-2 rounded-full ${
+                                          percentage > 80 ? 'bg-red-500' : 
+                                          percentage > 60 ? 'bg-yellow-500' : 
+                                          'bg-green-500'
+                                        }`}
+                                        style={{ width: `${percentage}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowAssignPopover(!showAssignPopover)}
+                      disabled={selectedPetitions.size === 0}
+                      className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover disabled:bg-gray-300 disabled:cursor-not-allowed font-medium whitespace-nowrap"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Assign to Committee
+                      {selectedPetitions.size > 0 && (
+                        <span className="bg-white text-primary px-2 py-0.5 rounded-full text-xs font-bold">
+                          {selectedPetitions.size}
+                        </span>
+                      )}
+                    </button>
+                    
+                    {/* Assignment Popover */}
+                    {showAssignPopover && selectedPetitions.size > 0 && (
+                      <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                        <div className="px-4 py-3 border-b border-gray-200">
+                          <h3 className="text-lg font-medium text-gray-900">
+                            Assign {selectedPetitions.size} Petition{selectedPetitions.size !== 1 ? 's' : ''}
+                          </h3>
+                        </div>
+                        <div className="p-4">
+                          <div className="space-y-2">
+                            {committees.map(committee => (
+                              <button
+                                key={committee.id}
+                                onClick={() => handleCommitteeSelection(committee.id, committee.name)}
+                                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                              >
+                                {committee.name}
+                                <span className="text-xs text-gray-500 ml-2">
+                                  ({committee.petition_count || 0} petitions)
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               
@@ -587,104 +686,6 @@ export default function SecretaryDashboard() {
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-3 mb-4">
-              <div className="relative">
-                <button
-                  onClick={() => setShowWorkloadPopover(!showWorkloadPopover)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 font-medium"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  Committee Workload
-                </button>
-                
-                {/* Workload Popover */}
-                {showWorkloadPopover && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <h3 className="text-lg font-medium text-gray-900">Committee Workload</h3>
-                    </div>
-                    <div className="p-4">
-                      <div className="space-y-3">
-                        {committees
-                          .sort((a, b) => (b.petition_count || 0) - (a.petition_count || 0))
-                          .map(committee => {
-                            const count = committee.petition_count || 0
-                            const maxCount = Math.max(...committees.map(c => c.petition_count || 0))
-                            const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0
-                            
-                            return (
-                              <div key={committee.id} className="space-y-1">
-                                <div className="flex justify-between text-sm">
-                                  <span className="text-gray-700 truncate">{committee.name}</span>
-                                  <span className="text-gray-900 font-medium">{count}</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                  <div 
-                                    className={`h-2 rounded-full ${
-                                      percentage > 80 ? 'bg-red-500' : 
-                                      percentage > 60 ? 'bg-yellow-500' : 
-                                      'bg-green-500'
-                                    }`}
-                                    style={{ width: `${percentage}%` }}
-                                  />
-                                </div>
-                              </div>
-                            )
-                          })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="relative">
-                <button
-                  onClick={() => setShowAssignPopover(!showAssignPopover)}
-                  disabled={selectedPetitions.size === 0}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Assign to Committee
-                  {selectedPetitions.size > 0 && (
-                    <span className="bg-white text-primary px-2 py-0.5 rounded-full text-xs font-bold">
-                      {selectedPetitions.size}
-                    </span>
-                  )}
-                </button>
-                
-                {/* Assignment Popover */}
-                {showAssignPopover && selectedPetitions.size > 0 && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <h3 className="text-lg font-medium text-gray-900">
-                        Assign {selectedPetitions.size} Petition{selectedPetitions.size !== 1 ? 's' : ''}
-                      </h3>
-                    </div>
-                    <div className="p-4">
-                      <div className="space-y-2">
-                        {committees.map(committee => (
-                          <button
-                            key={committee.id}
-                            onClick={() => handleCommitteeSelection(committee.id, committee.name)}
-                            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-                          >
-                            {committee.name}
-                            <span className="text-xs text-gray-500 ml-2">
-                              ({committee.petition_count || 0} petitions)
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
 
             {/* Petitions Table - Virtual Scrolling */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
