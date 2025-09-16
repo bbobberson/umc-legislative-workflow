@@ -43,7 +43,7 @@ async function deleteNonAmendmentPetitions() {
         OR modified_paragraph_text IS NULL
     `
     
-    console.log(`Successfully deleted ${result.count} petitions.`)
+    console.log(`Successfully deleted ${result.length} petitions.`)
     
     // Verify deletion
     const remainingCount = await sql`SELECT COUNT(*) as count FROM petitions`

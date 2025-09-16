@@ -3,10 +3,18 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
+interface Amendment {
+  type: 'insert' | 'delete'
+  originalText?: string
+  newText?: string
+  position: number
+}
+
 interface Petition {
   id: string
   title: string
   submitter_name: string
+  submitter_email: string
   submitter_organization: string
   petition_type: string
   bod_paragraph: string
@@ -15,8 +23,10 @@ interface Petition {
   submission_date: string
   committee_id?: string
   committee_name?: string
-  petition_text: string
   rationale: string
+  amendment_data: Amendment[] | null
+  original_paragraph_text: string | null
+  modified_paragraph_text: string | null
 }
 
 interface Committee {
@@ -110,9 +120,10 @@ export default function SecretaryDashboard() {
         petition.submitter_name,
         petition.submitter_organization || '',
         petition.bod_paragraph,
-        petition.petition_text,
         petition.rationale || '',
-        petition.committee_name || ''
+        petition.committee_name || '',
+        petition.original_paragraph_text || '',
+        petition.modified_paragraph_text || ''
       ].join(' ').toLowerCase()
       
       if (!searchableFields.includes(query)) return false
