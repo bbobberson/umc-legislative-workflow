@@ -124,8 +124,8 @@ export default function PetitionDetail() {
       
       if (response.ok) {
         const updatedData = await response.json()
-        setPetition(updatedData.petition)
-        // Optionally redirect back to dashboard or show success message
+        // Redirect back to dashboard with success message
+        router.push('/secretary?saved=true&title=' + encodeURIComponent(petition.title))
       } else {
         alert('Failed to save changes')
       }
@@ -169,9 +169,9 @@ export default function PetitionDetail() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-3 space-y-6">
             {/* Petition Content */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Petition Details</h2>
@@ -198,7 +198,6 @@ export default function PetitionDetail() {
                   </div>
                 </div>
 
-
                 {petition.rationale && (
                   <div>
                     <label className="text-sm font-medium text-gray-700">Rationale</label>
@@ -213,7 +212,7 @@ export default function PetitionDetail() {
 
             {/* Amendment Visualization */}
             {petition.amendment_data && petition.original_paragraph_text && petition.modified_paragraph_text && (
-              <div className="bg-white rounded-lg shadow p-6">
+              <div className="bg-white rounded-lg shadow-xl border-l-4 border-blue-500 p-6">
                 <div className="mb-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     Proposed Amendment to Book of Discipline
@@ -256,23 +255,26 @@ export default function PetitionDetail() {
           </div>
 
           {/* Secretary Review Panel */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8 bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="lg:col-span-2">
+            <div className="sticky top-8 bg-white rounded-lg shadow-lg border-t-4 border-blue-500 p-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-3">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 Secretary Review
               </h3>
               
-              <div className="space-y-4">
+              <div className="space-y-6">
 
                 {/* Petition Type */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
                     Petition Type *
                   </label>
                   <select
                     value={petitionType}
                     onChange={(e) => setPetitionType(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-gray-900"
                   >
                     <option value="">Select type...</option>
                     <option value="D">Disciplinary</option>
@@ -283,29 +285,34 @@ export default function PetitionDetail() {
                 </div>
 
                 {/* Financial Impact */}
-                <div>
-                  <label className="flex items-center">
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <label className="flex items-start gap-3">
                     <input
                       type="checkbox"
                       checked={financialImpact}
                       onChange={(e) => setFinancialImpact(e.target.checked)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="h-5 w-5 text-primary focus:ring-primary border-gray-300 rounded mt-0.5"
                     />
-                    <span className="ml-2 text-sm text-gray-700">
-                      Has financial implications
-                    </span>
+                    <div>
+                      <span className="text-sm font-medium text-gray-800">
+                        Has financial implications
+                      </span>
+                      <p className="text-xs text-gray-600 mt-1">
+                        Check if this petition affects church finances or budget
+                      </p>
+                    </div>
                   </label>
                 </div>
 
                 {/* Committee Assignment */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
                     Assign to Committee
                   </label>
                   <select
                     value={committeeId}
                     onChange={(e) => setCommitteeId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-gray-900"
                   >
                     <option value="">No assignment</option>
                     {committees.map(committee => (
@@ -317,20 +324,23 @@ export default function PetitionDetail() {
                 </div>
 
 
-                {/* Save Button */}
-                <button
-                  onClick={saveChanges}
-                  disabled={saving || !petitionType}
-                  className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-hover disabled:bg-primary-300 disabled:cursor-not-allowed font-medium"
-                >
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </button>
+                {/* Action Buttons */}
+                <div className="pt-4 border-t border-gray-200 space-y-3">
+                  <button
+                    onClick={saveChanges}
+                    disabled={saving || !petitionType}
+                    className="w-full bg-primary text-white py-3 px-4 rounded-md hover:bg-primary-hover disabled:bg-primary-300 disabled:cursor-not-allowed font-medium text-sm"
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
 
-                {petition.committee_name && (
-                  <div className="text-sm text-green-600 font-medium">
-                    Currently assigned to {petition.committee_name}
-                  </div>
-                )}
+                  <button
+                    onClick={() => alert('Return to Submitter workflow - Demo feature')}
+                    className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-200 font-medium border border-gray-300 text-sm"
+                  >
+                    Return to Submitter
+                  </button>
+                </div>
               </div>
             </div>
           </div>

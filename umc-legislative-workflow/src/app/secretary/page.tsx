@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface Amendment {
@@ -37,11 +38,18 @@ interface Committee {
 }
 
 export default function SecretaryDashboard() {
+  const searchParams = useSearchParams()
   const [petitions, setPetitions] = useState<Petition[]>([])
   const [committees, setCommittees] = useState<Committee[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedPetitions, setSelectedPetitions] = useState<Set<string>>(new Set())
   const [assigning, setAssigning] = useState(false)
+  
+  // Toast state for success messages
+  const [toast, setToast] = useState<{ show: boolean; message: string }>({
+    show: false,
+    message: ''
+  })
   
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('')
@@ -53,6 +61,7 @@ export default function SecretaryDashboard() {
     committeeName: string
     petitionCount: number
   }>({ isOpen: false, committeeId: '', committeeName: '', petitionCount: 0 })
+
 
   useEffect(() => {
     Promise.all([
@@ -83,6 +92,29 @@ export default function SecretaryDashboard() {
         setLoading(false)
       })
   }, [])
+
+  // Check for success message from petition save
+  useEffect(() => {
+    const saved = searchParams.get('saved')
+    const title = searchParams.get('title')
+    
+    if (saved === 'true') {
+      setToast({
+        show: true,
+        message: title ? `Petition "${decodeURIComponent(title)}" saved successfully!` : 'Petition saved successfully!'
+      })
+      
+      // Auto-hide toast after 4 seconds
+      const timer = setTimeout(() => {
+        setToast({ show: false, message: '' })
+      }, 4000)
+      
+      // Clear URL parameters
+      window.history.replaceState({}, '', '/secretary')
+      
+      return () => clearTimeout(timer)
+    }
+  }, [searchParams])
 
   const getStatusBadge = (status: string) => {
     const styles = {
@@ -120,7 +152,6 @@ export default function SecretaryDashboard() {
         petition.submitter_name,
         petition.submitter_organization || '',
         petition.bod_paragraph,
-        petition.rationale || '',
         petition.committee_name || '',
         petition.original_paragraph_text || '',
         petition.modified_paragraph_text || ''
@@ -251,6 +282,20 @@ export default function SecretaryDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Success Toast */}
+      {toast.show && (
+        <div className={`fixed top-4 right-4 z-50 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg transition-all duration-300 transform ${
+          toast.show ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+        }`}>
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-medium">{toast.message}</span>
+          </div>
+        </div>
+      )}
+      
       <div className="container mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
