@@ -29,11 +29,13 @@ CREATE TABLE petitions (
     submitter_organization VARCHAR(255),
     bod_paragraph VARCHAR(20), -- Links to BoD paragraph number
     petition_type VARCHAR(1) CHECK (petition_type IN ('D', 'C', 'R', 'O')), -- Discipline, Constitution, Resolution, Other
-    petition_text TEXT NOT NULL,
     rationale TEXT,
     financial_impact BOOLEAN DEFAULT FALSE,
     status VARCHAR(20) DEFAULT 'submitted' CHECK (status IN ('submitted', 'reviewed', 'assigned', 'in_committee', 'voted', 'approved', 'rejected')),
     committee_id UUID REFERENCES committees(id),
+    amendment_data JSONB, -- Amendment editor data
+    original_paragraph_text TEXT, -- Original BoD text
+    modified_paragraph_text TEXT, -- Modified BoD text
     submission_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

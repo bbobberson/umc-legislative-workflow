@@ -58,8 +58,34 @@ export default function BodParagraphSearch({ onSelect, selectedParagraph }: BodP
 
   const handleSelectParagraph = (paragraph: BodParagraph) => {
     onSelect(paragraph)
-    setSearchTerm(`${paragraph.number} - ${paragraph.title}`)
+    setSearchTerm(`${paragraph.number} - ${paragraph.title} - Section: ${paragraph.section}`)
     setShowResults(false)
+  }
+
+  const getSearchSnippet = (text: string, term: string) => {
+    if (!term.trim()) return text.substring(0, 120) + (text.length > 120 ? '...' : '')
+    
+    const lowerText = text.toLowerCase()
+    const lowerTerm = term.toLowerCase()
+    const matchIndex = lowerText.indexOf(lowerTerm)
+    
+    if (matchIndex === -1) {
+      // No match found in text, show beginning
+      return text.substring(0, 120) + (text.length > 120 ? '...' : '')
+    }
+    
+    // Show context around the match
+    const contextLength = 60
+    const start = Math.max(0, matchIndex - contextLength)
+    const end = Math.min(text.length, matchIndex + term.length + contextLength)
+    
+    let snippet = text.substring(start, end)
+    
+    // Add ellipsis if we truncated
+    if (start > 0) snippet = '...' + snippet
+    if (end < text.length) snippet = snippet + '...'
+    
+    return snippet
   }
 
   const highlightMatch = (text: string, term: string) => {
@@ -80,7 +106,7 @@ export default function BodParagraphSearch({ onSelect, selectedParagraph }: BodP
   // Set initial display when paragraph is selected externally
   useEffect(() => {
     if (selectedParagraph && !searchTerm) {
-      setSearchTerm(`${selectedParagraph.number} - ${selectedParagraph.title}`)
+      setSearchTerm(`${selectedParagraph.number} - ${selectedParagraph.title} - Section: ${selectedParagraph.section}`)
     }
   }, [selectedParagraph])
 
@@ -98,7 +124,7 @@ export default function BodParagraphSearch({ onSelect, selectedParagraph }: BodP
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={() => setShowResults(searchTerm.trim().length > 0)}
           placeholder="Search by paragraph number, title, or keyword..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
           required
         />
         
@@ -141,9 +167,7 @@ export default function BodParagraphSearch({ onSelect, selectedParagraph }: BodP
                       </div>
                       <div className="text-xs text-gray-500 mt-1 line-clamp-2">
                         {highlightMatch(
-                          paragraph.current_text.length > 120 
-                            ? paragraph.current_text.substring(0, 120) + '...'
-                            : paragraph.current_text,
+                          getSearchSnippet(paragraph.current_text, searchTerm),
                           searchTerm
                         )}
                       </div>
@@ -160,20 +184,6 @@ export default function BodParagraphSearch({ onSelect, selectedParagraph }: BodP
         </div>
       )}
 
-      {/* Selected Paragraph Info */}
-      {selectedParagraph && !showResults && (
-        <div className="mt-3 p-3 bg-blue-50 rounded-md">
-          <p className="text-sm font-medium text-blue-900 mb-1">
-            Selected: {selectedParagraph.section}
-          </p>
-          <p className="text-xs text-blue-700">
-            {selectedParagraph.current_text.length > 200 
-              ? selectedParagraph.current_text.substring(0, 200) + '...'
-              : selectedParagraph.current_text
-            }
-          </p>
-        </div>
-      )}
     </div>
   )
 }

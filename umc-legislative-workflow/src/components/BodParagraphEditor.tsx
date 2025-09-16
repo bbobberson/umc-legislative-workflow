@@ -93,23 +93,6 @@ export default function BodParagraphEditor({ selectedParagraph, onChangesUpdate 
 
   return (
     <div className="space-y-4">
-      <div className="bg-blue-50 rounded-lg p-4">
-        <h3 className="font-semibold text-blue-900 mb-2">
-          {selectedParagraph.number} - {selectedParagraph.title}
-        </h3>
-        <p className="text-sm text-blue-700">Section: {selectedParagraph.section}</p>
-      </div>
-
-      {/* Editing Toolbar */}
-      <div className="flex items-center justify-end p-3 bg-gray-50 rounded-lg">
-        <button
-          type="button"
-          onClick={clearFormatting}
-          className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm font-medium hover:bg-gray-200 transition-colors"
-        >
-          Reset
-        </button>
-      </div>
 
       {/* Rich Text Editor */}
       <div className="border rounded-lg overflow-hidden">
@@ -120,7 +103,7 @@ export default function BodParagraphEditor({ selectedParagraph, onChangesUpdate 
           ref={editorRef}
           contentEditable
           onInput={handleTextChange}
-          className="p-4 min-h-[200px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset text-gray-900 bg-white"
+          className="p-4 min-h-[200px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset text-gray-900 bg-white"
           style={{
             lineHeight: '1.6',
             fontSize: '16px',
@@ -128,6 +111,17 @@ export default function BodParagraphEditor({ selectedParagraph, onChangesUpdate 
           }}
           suppressContentEditableWarning={true}
         />
+      </div>
+
+      {/* Reset Button */}
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={clearFormatting}
+          className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs hover:bg-gray-200 transition-colors"
+        >
+          Reset
+        </button>
       </div>
 
       {/* Instructions */}
