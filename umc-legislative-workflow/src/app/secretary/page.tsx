@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 interface Amendment {
   type: 'insert' | 'delete'
@@ -55,11 +56,16 @@ export default function SecretaryDashboard() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'submitted' | 'under_review' | 'assigned'>('all')
   
+  // Sorting state
+  const [sortField, setSortField] = useState<'title' | 'submitter_name' | 'petition_type' | 'status' | 'bod_paragraph' | 'committee_name' | null>(null)
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  
   // Popover state
   const [showWorkloadPopover, setShowWorkloadPopover] = useState(false)
   const [showAssignPopover, setShowAssignPopover] = useState(false)
   
   // Virtual scrolling
+  const parentRef = useRef<HTMLDivElement>(null)
   
   const [confirmationModal, setConfirmationModal] = useState<{
     isOpen: boolean
@@ -155,33 +161,76 @@ export default function SecretaryDashboard() {
     return types[type as keyof typeof types] || '—'
   }
 
-  // Advanced filtering logic
-  const filteredPetitions = petitions.filter(petition => {
-    // Status filter
-    if (statusFilter !== 'all') {
-      if (statusFilter === 'submitted' && petition.status !== 'submitted') return false
-      if (statusFilter === 'under_review' && petition.status !== 'under_review') return false  
-      if (statusFilter === 'assigned' && petition.status !== 'assigned') return false
-    }
-    
-    // Search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      const searchableFields = [
-        petition.title,
-        petition.submitter_name,
-        petition.submitter_organization || '',
-        petition.bod_paragraph,
-        petition.committee_name || '',
-        petition.original_paragraph_text || '',
-        petition.modified_paragraph_text || ''
-      ].join(' ').toLowerCase()
+  // Advanced filtering and sorting logic
+  const filteredPetitions = petitions
+    .filter(petition => {
+      // Status filter
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'submitted' && petition.status !== 'submitted') return false
+        if (statusFilter === 'under_review' && petition.status !== 'under_review') return false  
+        if (statusFilter === 'assigned' && petition.status !== 'assigned') return false
+      }
       
-      if (!searchableFields.includes(query)) return false
-    }
-    
-    return true
-  })
+      // Search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase()
+        const searchableFields = [
+          petition.title,
+          petition.submitter_name,
+          petition.submitter_organization || '',
+          petition.bod_paragraph,
+          petition.committee_name || '',
+          petition.original_paragraph_text || '',
+          petition.modified_paragraph_text || ''
+        ].join(' ').toLowerCase()
+        
+        if (!searchableFields.includes(query)) return false
+      }
+      
+      return true
+    })
+    .sort((a, b) => {
+      if (!sortField) return 0
+      
+      let aValue: string | number = ''
+      let bValue: string | number = ''
+      
+      switch (sortField) {
+        case 'title':
+          aValue = a.title.toLowerCase()
+          bValue = b.title.toLowerCase()
+          break
+        case 'submitter_name':
+          aValue = a.submitter_name.toLowerCase()
+          bValue = b.submitter_name.toLowerCase()
+          break
+        case 'petition_type':
+          aValue = getTypeLabel(a.petition_type)
+          bValue = getTypeLabel(b.petition_type)
+          break
+        case 'status':
+          aValue = a.status
+          bValue = b.status
+          break
+        case 'bod_paragraph':
+          // Extract numeric value from paragraph references like "¶415" -> 415
+          const aNum = parseInt(a.bod_paragraph?.replace('¶', '') || '0')
+          const bNum = parseInt(b.bod_paragraph?.replace('¶', '') || '0')
+          aValue = aNum
+          bValue = bNum
+          break
+        case 'committee_name':
+          aValue = a.committee_name || ''
+          bValue = b.committee_name || ''
+          break
+        default:
+          return 0
+      }
+      
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
+      return 0
+    })
 
 
   const togglePetitionSelection = (petitionId: string) => {
@@ -294,9 +343,138 @@ export default function SecretaryDashboard() {
     return committees.find(c => c.name === 'Faith and Order') || null
   }
 
+  // Sorting function
+  const handleSort = (field: typeof sortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortDirection('asc')
+    }
+  }
+
+  // Sort icon component
+  const SortIcon = ({ field }: { field: typeof sortField }) => {
+    if (sortField !== field) {
+      // Unsorted - show both arrows
+      return (
+        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+        </svg>
+      )
+    }
+    
+    if (sortDirection === 'asc') {
+      // Ascending - up arrow
+      return (
+        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+        </svg>
+      )
+    } else {
+      // Descending - down arrow
+      return (
+        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      )
+    }
+  }
+
   const visibleUnassigned = filteredPetitions.filter(p => p.status !== 'assigned')
   const allVisibleUnassignedSelected = visibleUnassigned.length > 0 && visibleUnassigned.every(p => selectedPetitions.has(p.id))
   const suggestedCommittee = getCommitteeSuggestion(selectedPetitions)
+
+  // Virtual scrolling setup
+  const virtualizer = useVirtualizer({
+    count: filteredPetitions.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 73, // Row height as documented in CLAUDE.md
+    overscan: 10,
+  })
+
+  // Virtual table row component
+  const VirtualTableRow = ({ petition, index }: { petition: Petition; index: number }) => (
+    <div
+      className={`flex items-center border-b border-gray-200 hover:bg-gray-50 ${
+        selectedPetitions.has(petition.id) ? 'bg-blue-50' : 'bg-white'
+      }`}
+      style={{ height: '73px' }}
+    >
+      {/* Checkbox column */}
+      <div className="flex-shrink-0 w-14 px-6 py-4 flex justify-center">
+        {petition.status !== 'assigned' && (
+          <input
+            type="checkbox"
+            checked={selectedPetitions.has(petition.id)}
+            onChange={() => togglePetitionSelection(petition.id)}
+            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+        )}
+      </div>
+      
+      {/* Petition column */}
+      <div className="flex-1 px-6 py-4 min-w-0 max-w-md">
+        <div className="text-sm font-medium text-gray-900 truncate">
+          <Link 
+            href={`/secretary/petition/${petition.id}`}
+            className="text-blue-600 hover:text-blue-800 hover:underline"
+            title={petition.title}
+          >
+            {petition.title}
+          </Link>
+        </div>
+        <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
+          <span className="truncate">
+            {petition.submitter_name}
+          </span>
+          {petition.submitter_organization && (
+            <>
+              <span>•</span>
+              <span className="truncate text-gray-400">
+                {petition.submitter_organization}
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+      
+      {/* Type column */}
+      <div className="flex-shrink-0 w-36 px-6 py-4">
+        <div className="flex items-center">
+          <span className="text-sm text-gray-900">
+            {getTypeLabel(petition.petition_type)}
+          </span>
+          {petition.financial_impact && (
+            <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+              $
+            </span>
+          )}
+        </div>
+      </div>
+      
+      {/* Status column */}
+      <div className="flex-shrink-0 w-32 px-6 py-4">
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getStatusBadge(petition.status)}`}>
+          {petition.status.replace('_', ' ')}
+        </span>
+      </div>
+      
+      {/* BoD Reference column */}
+      <div className="flex-shrink-0 w-28 px-6 py-4 text-center">
+        <span className="text-sm text-gray-900">
+          {petition.bod_paragraph || '—'}
+        </span>
+      </div>
+      
+      {/* Committee column */}
+      <div className="flex-shrink-0 w-44 px-6 py-4">
+        <span className="text-sm text-gray-500 truncate">
+          {petition.committee_name || '—'}
+        </span>
+      </div>
+    </div>
+  )
 
   if (loading) {
     return (
@@ -508,7 +686,7 @@ export default function SecretaryDashboard() {
               </div>
             </div>
 
-            {/* Petitions Table */}
+            {/* Petitions Table - Virtual Scrolling */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
@@ -531,104 +709,91 @@ export default function SecretaryDashboard() {
                   }
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 w-8">
-                          {visibleUnassigned.length > 0 && (
-                            <input
-                              type="checkbox"
-                              checked={allVisibleUnassignedSelected}
-                              onChange={(e) => selectAllVisible(e.target.checked)}
-                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                          )}
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Petition
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Type
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          BoD Reference
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Committee
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filteredPetitions.map((petition) => (
-                        <tr 
-                          key={petition.id} 
-                          className={`hover:bg-gray-50 ${selectedPetitions.has(petition.id) ? 'bg-blue-50' : ''}`}
-                        >
-                          <td className="px-6 py-4">
-                            {petition.status !== 'assigned' && (
-                              <input
-                                type="checkbox"
-                                checked={selectedPetitions.has(petition.id)}
-                                onChange={() => togglePetitionSelection(petition.id)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                              />
-                            )}
-                          </td>
-                          <td className="px-6 py-4 max-w-sm">
-                            <div className="text-sm font-medium text-gray-900 truncate">
-                              <Link 
-                                href={`/secretary/petition/${petition.id}`}
-                                className="text-blue-600 hover:text-blue-800 hover:underline"
-                                title={petition.title}
-                              >
-                                {petition.title}
-                              </Link>
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                              <span className="truncate">
-                                {petition.submitter_name}
-                              </span>
-                              {petition.submitter_organization && (
-                                <>
-                                  <span>•</span>
-                                  <span className="truncate text-gray-400">
-                                    {petition.submitter_organization}
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <span className="text-sm text-gray-900">
-                                {getTypeLabel(petition.petition_type)}
-                              </span>
-                              {petition.financial_impact && (
-                                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                  $
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(petition.status)}`}>
-                              {petition.status.replace('_', ' ')}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {petition.bod_paragraph || '—'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {petition.committee_name || '—'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="overflow-hidden">
+                  {/* Table Header */}
+                  <div className="bg-gray-50 border-b border-gray-200">
+                    <div className="flex items-center" style={{ height: '48px' }}>
+                      <div className="flex-shrink-0 w-14 px-6 py-3 flex justify-center">
+                        {visibleUnassigned.length > 0 && (
+                          <input
+                            type="checkbox"
+                            checked={allVisibleUnassignedSelected}
+                            onChange={(e) => selectAllVisible(e.target.checked)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleSort('title')}
+                        className="flex-1 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-md hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                      >
+                        Petition
+                        <SortIcon field="title" />
+                      </button>
+                      <button
+                        onClick={() => handleSort('petition_type')}
+                        className="flex-shrink-0 w-36 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                      >
+                        Type
+                        <SortIcon field="petition_type" />
+                      </button>
+                      <button
+                        onClick={() => handleSort('status')}
+                        className="flex-shrink-0 w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                      >
+                        Status
+                        <SortIcon field="status" />
+                      </button>
+                      <button
+                        onClick={() => handleSort('bod_paragraph')}
+                        className="flex-shrink-0 w-28 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+                      >
+                        BoD Ref
+                        <SortIcon field="bod_paragraph" />
+                      </button>
+                      <button
+                        onClick={() => handleSort('committee_name')}
+                        className="flex-shrink-0 w-44 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                      >
+                        Committee
+                        <SortIcon field="committee_name" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Virtual Scrolling Container */}
+                  <div
+                    ref={parentRef}
+                    className="overflow-auto"
+                    style={{ height: '600px' }}
+                  >
+                    <div
+                      style={{
+                        height: `${virtualizer.getTotalSize()}px`,
+                        width: '100%',
+                        position: 'relative',
+                      }}
+                    >
+                      {virtualizer.getVirtualItems().map((virtualItem) => {
+                        const petition = filteredPetitions[virtualItem.index]
+                        return (
+                          <div
+                            key={virtualItem.key}
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: `${virtualItem.size}px`,
+                              transform: `translateY(${virtualItem.start}px)`,
+                            }}
+                          >
+                            <VirtualTableRow petition={petition} index={virtualItem.index} />
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

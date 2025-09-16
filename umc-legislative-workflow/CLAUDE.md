@@ -35,8 +35,10 @@ Key design decisions:
 
 **Three Main User Flows:**
 1. `/submit` - Public petition submission with visual amendment editor (RTF-style editing with strike-through/underline)
-2. `/secretary` - Dashboard for petition management and committee assignment with virtual scrolling
+2. `/secretary` - Dashboard for petition management and committee assignment (supports large datasets)
 3. `/recorder` - Committee recording interface (★ demo highlight)
+   - `/recorder/vote/[id]` - Individual petition voting interface
+   - `/recorder/approve/[id]` - Committee approval workflow
 
 **Key Components:**
 - `BodParagraphSearch` - Smart search with multi-mode filtering (paragraph #, title, keywords, sections)
@@ -52,9 +54,18 @@ Key design decisions:
 **API Endpoints:**
 - `/api/bod-paragraphs` - Fetches Book of Discipline paragraphs for smart search
 - `/api/petitions` - GET (list) and POST (create) petition operations
-- `/api/petitions/[id]` - GET individual petition details
+- `/api/petitions/[id]` - GET individual petition details, PATCH updates petition metadata
 - `/api/petitions/[id]/assign` - POST committee assignment
 - `/api/committees` - GET list of committees
+- `/api/committee-votes` - POST create committee vote records
+- `/api/committee-votes/[id]` - GET individual vote details, PATCH update votes
+- `/api/committee-votes/[id]/approve` - POST approve committee vote decisions
+
+**Secretary Workflow Features:**
+- Auto-redirect with success toast notification after petition save
+- "Return to Submitter" secondary action for workflow discussions
+- Enhanced Secretary Review panel with improved visual hierarchy
+- Full-width layouts for better screen utilization on modern displays
 
 ## Common Development Commands
 
@@ -128,10 +139,11 @@ npx tsx scripts/fix-committee-duplicates-final.ts
 ```
 
 ### Search Performance
-The secretary dashboard implements virtual scrolling for handling large petition datasets (500+ records). The virtual scrolling configuration:
-- Row height: 73px estimated
-- Overscan: 10 items
-- Full-text search includes: title, submitter, organization, BoD paragraph, petition text, committee name, petition type
+The secretary dashboard is designed to handle large petition datasets (1000+ records) efficiently:
+- Current implementation uses traditional table rendering with pagination-ready architecture
+- Virtual scrolling capability available via `@tanstack/react-virtual` (73px row height, 10 overscan)
+- Full-text search includes: title, submitter, organization, BoD paragraph, amendment text, committee name, petition type
+- Real-time filtering and sorting without performance degradation
 
 ## Demo Strategy Notes
 
@@ -166,9 +178,18 @@ Colors and fonts are defined in `src/app/globals.css` using the `@theme inline` 
 @theme inline {
   --color-umc-red: #E4002B;
   --color-primary: #1D4ED8;
+  --color-primary-hover: #1E3A8A;
+  --color-primary-300: #93C5FD;
   --font-trade: "Trade Gothic", "Trade Gothic Next", ...;
 }
 ```
+
+### Layout System
+The application uses a mixed layout approach optimized for different page types:
+- **Home page**: Centered container layout (`container mx-auto`) for marketing feel
+- **Application pages**: Full-width layout (`max-w-7xl mx-auto`) for data-dense interfaces
+- **Submit page**: Full-width with optimized 3-column form layout for petition details
+- **Secretary pages**: Full-width with enhanced card layouts and proper visual hierarchy
 
 ## Development Notes
 
@@ -181,11 +202,12 @@ Colors and fonts are defined in `src/app/globals.css` using the `@theme inline` 
 
 ## Troubleshooting
 
-### Virtual Scrolling Issues
-If the petition table becomes unresponsive or shows incorrect data:
-1. Check that `filteredAndSortedPetitions` is properly defined
-2. Verify virtual scrolling container height is appropriate (600px default)
-3. Ensure sort state is consistent with data filtering
+### Performance and Rendering Issues
+If the secretary dashboard has performance issues or display problems:
+1. Check for JavaScript syntax errors in browser console (especially template literal escaping)
+2. Clear Next.js build cache: `rm -rf .next && npm run dev`
+3. Verify database queries are completing successfully in server logs
+4. For large datasets (1000+ records), consider implementing virtual scrolling with `@tanstack/react-virtual`
 
 ### Database Connection Issues
 All scripts require `.env.local` with valid `POSTGRES_URL`. The Neon serverless client will fail silently if environment variables are missing.
