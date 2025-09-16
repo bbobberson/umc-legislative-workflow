@@ -48,7 +48,7 @@ export default function BodParagraphSearch({ onSelect, selectedParagraph }: BodP
       p.current_text.toLowerCase().includes(term) ||
       // Handle paragraph number variations: "41", "¶41", "paragraph 41"
       p.number.replace('¶', '').includes(term.replace(/[¶paragraph\s]/g, ''))
-    ).slice(0, 8) // Limit to 8 results for clean UI
+    ) // Show all results for comprehensive demo
   }, [paragraphs, searchTerm])
 
   const handleInputChange = (value: string) => {
@@ -163,7 +163,7 @@ export default function BodParagraphSearch({ onSelect, selectedParagraph }: BodP
                         {highlightMatch(paragraph.number, searchTerm)} - {highlightMatch(paragraph.title, searchTerm)}
                       </div>
                       <div className="text-xs text-blue-600 mt-1">
-                        {paragraph.section}
+                        {highlightMatch(paragraph.section, searchTerm)}
                       </div>
                       <div className="text-xs text-gray-500 mt-1 line-clamp-2">
                         {highlightMatch(

@@ -79,22 +79,15 @@ export default function SubmitPetition() {
   const fillSampleData = () => {
     const randomPetition = samplePetitions[Math.floor(Math.random() * samplePetitions.length)]
     
-    // Update form data
-    const newFormData = {
+    // Update only petition details fields - don't touch BoD paragraph section
+    setFormData({
+      ...formData,
       title: randomPetition.title,
       submitterName: randomPetition.submitterName,
       submitterEmail: randomPetition.submitterEmail,
       submitterOrganization: randomPetition.submitterOrganization,
-      bodParagraph: randomPetition.bodParagraph,
-      petitionText: randomPetition.petitionText,
       rationale: randomPetition.rationale
-    }
-    
-    setFormData(newFormData)
-    
-    // Find and set the selected paragraph
-    const paragraph = bodParagraphs.find(p => p.number === randomPetition.bodParagraph)
-    setSelectedParagraph(paragraph || null)
+    })
   }
 
   // Handle BoD paragraph selection
@@ -195,18 +188,6 @@ export default function SubmitPetition() {
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <Link href="/" className="text-blue-600 hover:text-blue-800 inline-block">
-                ← Back to Home
-              </Link>
-              <button
-                type="button"
-                onClick={fillSampleData}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm font-medium transition-colors"
-              >
-                Fill Sample Data
-              </button>
-            </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Submit Legislative Petition</h1>
             <p className="text-gray-600">
               Submit your petition for consideration at the next General Conference
@@ -217,25 +198,37 @@ export default function SubmitPetition() {
           <form onSubmit={handleSubmit}>
             {/* Contact Form */}
             <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-              <div className="grid md:grid-cols-2 gap-8">
-                {/* Left Column */}
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Petition Title *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.title}
-                      onChange={(e) => setFormData({...formData, title: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                      placeholder="Brief descriptive title for your petition"
-                    />
-                  </div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">Petition Details</h2>
+                <button
+                  type="button"
+                  onClick={fillSampleData}
+                  className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors group"
+                  title="Fill with sample data"
+                >
+                  <svg className="w-5 h-5 text-gray-600 group-hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                  </svg>
+                </button>
+              </div>
+              <div className="max-w-2xl space-y-8">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Petition Title *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 text-lg"
+                    placeholder="Brief descriptive title for your petition"
+                  />
+                </div>
 
+                <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
                       Your Name *
                     </label>
                     <input
@@ -243,60 +236,46 @@ export default function SubmitPetition() {
                       required
                       value={formData.submitterName}
                       onChange={(e) => setFormData({...formData, submitterName: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                     />
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Address *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        value={formData.submitterEmail}
-                        onChange={(e) => setFormData({...formData, submitterEmail: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Organization/Church
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.submitterOrganization}
-                        onChange={(e) => setFormData({...formData, submitterOrganization: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                        placeholder="Annual Conference, Local Church, etc."
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={formData.submitterEmail}
+                      onChange={(e) => setFormData({...formData, submitterEmail: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                    />
                   </div>
                 </div>
 
-                {/* Right Column */}
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Rationale
-                    </label>
-                    <textarea
-                      rows={6}
-                      value={formData.rationale}
-                      onChange={(e) => setFormData({...formData, rationale: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                      placeholder="Explain why this change is needed..."
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Organization/Church
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.submitterOrganization}
+                    onChange={(e) => setFormData({...formData, submitterOrganization: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                    placeholder="Annual Conference, Local Church, etc."
+                  />
                 </div>
               </div>
             </div>
 
           {/* Amendment Editor */}
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+          <div className="bg-white rounded-lg shadow-xl border-l-4 border-blue-500 p-8 mb-8">
             <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Amendment Editor</h2>
+              <p className="text-sm text-gray-600 mb-6">
+                Search and select a Book of Discipline paragraph, then make your amendments with live preview
+              </p>
               <BodParagraphSearch 
                 onSelect={handleBodSelection}
                 selectedParagraph={selectedParagraph}
@@ -319,9 +298,30 @@ export default function SubmitPetition() {
             </div>
           </div>
 
+          {/* Rationale */}
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Rationale</h2>
+            <div className="max-w-4xl">
+              <label className="block text-sm font-medium text-gray-700 mb-6">
+                Explain why this change is needed
+              </label>
+              <textarea
+                rows={6}
+                value={formData.rationale}
+                onChange={(e) => setFormData({...formData, rationale: e.target.value})}
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                placeholder="Provide the reasoning and justification for your proposed amendment..."
+              />
+            </div>
+          </div>
+
             {/* Submit Button */}
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <div className="flex justify-end">
+              <div className="flex items-center justify-between">
+                <p className="text-lg font-medium text-gray-700">
+                  Ready to Submit?
+                </p>
+                <div>
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -329,6 +329,7 @@ export default function SubmitPetition() {
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Petition'}
                 </button>
+                </div>
               </div>
             </div>
           </form>
