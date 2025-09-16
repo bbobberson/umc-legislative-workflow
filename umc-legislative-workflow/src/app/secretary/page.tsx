@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useVirtualizer } from '@tanstack/react-virtual'
+import LoadingSpinner from '@/components/LoadingSpinner'
+import ErrorMessage from '@/components/ErrorMessage'
 
 interface Amendment {
   type: 'insert' | 'delete'
@@ -43,6 +45,7 @@ export default function SecretaryDashboard() {
   const [petitions, setPetitions] = useState<Petition[]>([])
   const [committees, setCommittees] = useState<Committee[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [selectedPetitions, setSelectedPetitions] = useState<Set<string>>(new Set())
   const [assigning, setAssigning] = useState(false)
   
@@ -101,6 +104,7 @@ export default function SecretaryDashboard() {
       })
       .catch(err => {
         console.error('Error loading data:', err)
+        setError('Failed to load petitions. Please try again.')
         setLoading(false)
       })
   }, [])
@@ -476,12 +480,18 @@ export default function SecretaryDashboard() {
     </div>
   )
 
+  const retryLoad = () => {
+    setError(null)
+    setLoading(true)
+    loadData()
+  }
+
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading petitions...</div>
-      </div>
-    )
+    return <LoadingSpinner message="Loading petitions..." />
+  }
+
+  if (error) {
+    return <ErrorMessage message={error} onRetry={retryLoad} />
   }
 
   return (

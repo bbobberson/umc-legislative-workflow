@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import LoadingSpinner from './LoadingSpinner'
 
 interface BodParagraph {
   id: string
@@ -145,6 +146,13 @@ export default function BodParagraphSearch({ onSelect, selectedParagraph }: BodP
         </div>
       )}
 
+      {/* Loading State */}
+      {showResults && isLoading && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+          <LoadingSpinner message="Searching paragraphs..." size="sm" fullScreen={false} />
+        </div>
+      )}
+      
       {/* Search Results */}
       {showResults && !isLoading && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-96 overflow-y-auto">

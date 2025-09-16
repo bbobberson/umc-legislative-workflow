@@ -73,6 +73,10 @@ Key design decisions:
 # Development
 npm run dev              # Start development server (usually runs on :3000)
 
+# Demo Preparation
+./scripts/warm-pages.sh  # Pre-compile all pages for fast demo loading
+                        # Run this before every demo!
+
 # Database
 npm run db:setup         # Initialize database schema and sample data
                         # Requires POSTGRES_URL in .env.local

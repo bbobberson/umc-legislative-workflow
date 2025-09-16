@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import BodParagraphPreview from '@/components/BodParagraphPreview'
+import LoadingSpinner from '@/components/LoadingSpinner'
 
 interface Petition {
   id: string
@@ -138,11 +139,7 @@ export default function PetitionDetail() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading petition...</div>
-      </div>
-    )
+    return <LoadingSpinner message="Loading petition..." />
   }
 
   if (!petition) {
