@@ -210,7 +210,7 @@ export default function VoteRecordingPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto py-8 px-4">
+      <form onSubmit={handleSubmit} className="px-6 py-8 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 font-trade">
@@ -227,14 +227,14 @@ export default function VoteRecordingPage() {
               <div className="space-y-3 text-sm">
                 <div>
                   <span className="text-gray-500">Title:</span>
-                  <p className="font-medium">{petition.title}</p>
+                  <p className="font-medium text-gray-900">{petition.title}</p>
                 </div>
                 
                 <div>
                   <span className="text-gray-500">Submitter:</span>
-                  <p>{petition.submitter_name}</p>
+                  <p className="text-gray-900">{petition.submitter_name}</p>
                   {petition.submitter_organization && (
-                    <p className="text-gray-600">{petition.submitter_organization}</p>
+                    <p className="text-gray-800">{petition.submitter_organization}</p>
                   )}
                 </div>
                 
@@ -255,7 +255,7 @@ export default function VoteRecordingPage() {
                 {petition.bod_paragraph && (
                   <div>
                     <span className="text-gray-500">BoD Reference:</span>
-                    <p className="font-mono text-sm">{petition.bod_paragraph}</p>
+                    <p className="font-mono text-sm text-gray-900">{petition.bod_paragraph}</p>
                   </div>
                 )}
                 
@@ -293,7 +293,7 @@ export default function VoteRecordingPage() {
                 {petition.rationale && (
                   <div className="mt-4 pt-4 border-t">
                     <span className="text-sm text-gray-500 mb-2 block">Rationale:</span>
-                    <div className="bg-blue-50 rounded p-3 text-sm text-gray-700">
+                    <div className="bg-blue-50 rounded p-3 text-sm text-gray-900">
                       {petition.rationale}
                     </div>
                   </div>
@@ -314,10 +314,10 @@ export default function VoteRecordingPage() {
                 </label>
                 <div className="grid grid-cols-1 gap-3">
                   {[
-                    { value: 'adopt', label: 'Adopt', bgColor: 'bg-green-600', hoverColor: 'hover:bg-green-700', selectedBg: 'bg-green-600', unselectedBg: 'bg-gray-200', unselectedText: 'text-gray-700', selectedText: 'text-white' },
-                    { value: 'not_support', label: 'Not Support', bgColor: 'bg-red-600', hoverColor: 'hover:bg-red-700', selectedBg: 'bg-red-600', unselectedBg: 'bg-gray-200', unselectedText: 'text-gray-700', selectedText: 'text-white' },
-                    { value: 'refer', label: 'Refer to Committee/Agency', bgColor: 'bg-blue-600', hoverColor: 'hover:bg-blue-700', selectedBg: 'bg-blue-600', unselectedBg: 'bg-gray-200', unselectedText: 'text-gray-700', selectedText: 'text-white' },
-                    { value: 'assign_to_reference', label: 'Assign to Reference Committee', bgColor: 'bg-purple-600', hoverColor: 'hover:bg-purple-700', selectedBg: 'bg-purple-600', unselectedBg: 'bg-gray-200', unselectedText: 'text-gray-700', selectedText: 'text-white' }
+                    { value: 'adopt', label: 'Adopt', bgColor: 'bg-green-600', hoverColor: 'hover:bg-green-700', selectedBg: 'bg-green-600', unselectedBg: 'bg-white', unselectedText: 'text-gray-700', selectedText: 'text-white' },
+                    { value: 'not_support', label: 'Not Support', bgColor: 'bg-red-600', hoverColor: 'hover:bg-red-700', selectedBg: 'bg-red-600', unselectedBg: 'bg-white', unselectedText: 'text-gray-700', selectedText: 'text-white' },
+                    { value: 'refer', label: 'Refer to Committee/Agency', bgColor: 'bg-blue-600', hoverColor: 'hover:bg-blue-700', selectedBg: 'bg-blue-600', unselectedBg: 'bg-white', unselectedText: 'text-gray-700', selectedText: 'text-white' },
+                    { value: 'assign_to_reference', label: 'Assign to Reference Committee', bgColor: 'bg-purple-600', hoverColor: 'hover:bg-purple-700', selectedBg: 'bg-purple-600', unselectedBg: 'bg-white', unselectedText: 'text-gray-700', selectedText: 'text-white' }
                   ].map((action) => {
                     const isSelected = voteData.action === action.value
                     return (
@@ -363,7 +363,7 @@ export default function VoteRecordingPage() {
                         min="0"
                         value={value}
                         onChange={(e) => updateVoteTally(key as keyof VoteData['vote_tally'], parseInt(e.target.value) || 0)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 bg-white"
                       />
                     </div>
                   ))}
@@ -379,7 +379,7 @@ export default function VoteRecordingPage() {
                   value={voteData.amendment_text}
                   onChange={(e) => updateVoteData('amendment_text', e.target.value)}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 bg-white placeholder-gray-500"
                   placeholder="Enter any amendments or modifications..."
                 />
               </div>
@@ -394,7 +394,7 @@ export default function VoteRecordingPage() {
                   required
                   value={voteData.recorded_by}
                   onChange={(e) => updateVoteData('recorded_by', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 bg-white placeholder-gray-500"
                   placeholder="Enter recorder name"
                 />
               </div>

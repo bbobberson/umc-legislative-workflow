@@ -63,15 +63,12 @@ export default function RecorderPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="page-container">
-        <div className="page-header">
+      <div className="px-6 py-8 max-w-7xl mx-auto">
+        <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-title text-gray-900">
-              Committee Recording
+            <h1 className="text-3xl font-bold text-gray-900 font-trade">
+              Welcome back, Katie!
             </h1>
-            <div className="text-lg text-gray-700">
-              Hello <span className="font-semibold text-primary">Katie</span>!
-            </div>
           </div>
           <p className="text-gray-600">
             Record committee votes and actions for legislative petitions
@@ -81,8 +78,8 @@ export default function RecorderPage() {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Committee Selection */}
           <div className="lg:col-span-1">
-            <div className="card">
-              <h2 className="text-heading text-gray-900 mb-4">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 font-trade">
                 Select Committee
               </h2>
               <div className="space-y-2">
