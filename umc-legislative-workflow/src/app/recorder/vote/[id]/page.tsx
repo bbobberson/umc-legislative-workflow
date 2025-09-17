@@ -260,11 +260,11 @@ export default function VoteRecordingPage() {
                 )}
                 
                 {petition.financial_impact && (
-                  <div className="flex items-center text-amber-600">
-                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    Financial Impact
+                  <div className="flex items-center">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mr-2">
+                      $
+                    </span>
+                    <span className="text-red-800 text-sm font-medium">Financial Implication</span>
                   </div>
                 )}
 
@@ -317,7 +317,8 @@ export default function VoteRecordingPage() {
                     { value: 'adopt', label: 'Adopt', bgColor: 'bg-green-600', hoverColor: 'hover:bg-green-700', selectedBg: 'bg-green-600', unselectedBg: 'bg-white', unselectedText: 'text-gray-700', selectedText: 'text-white' },
                     { value: 'not_support', label: 'Not Support', bgColor: 'bg-red-600', hoverColor: 'hover:bg-red-700', selectedBg: 'bg-red-600', unselectedBg: 'bg-white', unselectedText: 'text-gray-700', selectedText: 'text-white' },
                     { value: 'refer', label: 'Refer to Committee/Agency', bgColor: 'bg-blue-600', hoverColor: 'hover:bg-blue-700', selectedBg: 'bg-blue-600', unselectedBg: 'bg-white', unselectedText: 'text-gray-700', selectedText: 'text-white' },
-                    { value: 'assign_to_reference', label: 'Assign to Reference Committee', bgColor: 'bg-purple-600', hoverColor: 'hover:bg-purple-700', selectedBg: 'bg-purple-600', unselectedBg: 'bg-white', unselectedText: 'text-gray-700', selectedText: 'text-white' }
+                    { value: 'assign_to_reference', label: 'Assign to Reference Committee', bgColor: 'bg-purple-600', hoverColor: 'hover:bg-purple-700', selectedBg: 'bg-purple-600', unselectedBg: 'bg-white', unselectedText: 'text-gray-700', selectedText: 'text-white' },
+                    { value: 'reject_in_favor_of', label: 'Reject in favor of', bgColor: 'bg-orange-600', hoverColor: 'hover:bg-orange-700', selectedBg: 'bg-orange-600', unselectedBg: 'bg-white', unselectedText: 'text-gray-700', selectedText: 'text-white' }
                   ].map((action) => {
                     const isSelected = voteData.action === action.value
                     return (
@@ -369,6 +370,69 @@ export default function VoteRecordingPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Minority Report Detection */}
+              {(() => {
+                const { yes, no, abstain } = voteData.vote_tally
+                const totalVotes = yes + no + abstain
+                const hasReasonableVoteCount = totalVotes >= 8 // Need meaningful committee participation
+                const oppositionVotes = no + abstain
+                const oppositionPercentage = totalVotes > 0 ? (oppositionVotes / totalVotes) * 100 : 0
+                const marginOfVictory = totalVotes > 0 ? Math.abs(yes - no) / totalVotes : 1
+                
+                // Minority report eligible when:
+                // 1. Substantial opposition (25%+ voted no/abstain)
+                // 2. OR very close margin (victory margin ≤ 20% of total votes)
+                // 3. AND meaningful committee participation (8+ total votes)
+                const hasSubstantialOpposition = oppositionPercentage >= 25
+                const hasCloseMargin = marginOfVictory <= 0.2
+                const minorityReportEligible = hasReasonableVoteCount && (hasSubstantialOpposition || hasCloseMargin)
+
+                if (!hasReasonableVoteCount) return null
+
+                return (
+                  <div className="mb-6">
+                    <div className={`p-4 rounded-lg border ${
+                      minorityReportEligible 
+                        ? 'bg-blue-50 border-blue-200' 
+                        : 'bg-gray-50 border-gray-200'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-1">
+                            Minority Report Option
+                          </h4>
+                          {minorityReportEligible ? (
+                            <p className="text-sm text-blue-700">
+                              Vote pattern suggests potential minority report eligibility
+                            </p>
+                          ) : (
+                            <p className="text-sm text-gray-600">
+                              Conditions not met for minority report filing
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          disabled={!minorityReportEligible}
+                          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                            minorityReportEligible
+                              ? 'bg-primary text-white hover:bg-primary-600'
+                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          }`}
+                        >
+                          {minorityReportEligible ? 'File Minority Report' : 'Minority Report'}
+                        </button>
+                      </div>
+                      {minorityReportEligible && (
+                        <div className="mt-3 text-xs text-blue-600">
+                          <p>Requires 10 people or 10% of committee membership (whichever is fewer)</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })()}
 
               {/* Amendment Text */}
               <div className="mb-6">

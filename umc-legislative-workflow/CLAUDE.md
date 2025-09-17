@@ -44,12 +44,16 @@ Key design decisions:
 - `BodParagraphSearch` - Smart search with multi-mode filtering (paragraph #, title, keywords, sections)
 - `BodParagraphEditor` - contentEditable rich text editor with diff tracking
 - `BodParagraphPreview` - Before/after comparison with visual diff rendering
+- `LoadingSpinner` - Shared loading component with consistent UX across all pages
+- `ErrorMessage` - Standardized error handling with retry functionality
 
 **Performance Features:**
 - Virtual scrolling for large petition lists using `@tanstack/react-virtual`
 - Real-time search highlighting with regex-based text matching
 - Committee workload popover to reduce UI clutter
 - Sortable columns with visual indicators
+- Page pre-warming script eliminates Next.js compilation delays during demos
+- Consistent loading states with professional spinners and error recovery
 
 **API Endpoints:**
 - `/api/bod-paragraphs` - Fetches Book of Discipline paragraphs for smart search
@@ -178,6 +182,8 @@ The application implements authentic UMC branding following the official UMC bra
 - Minimal header with just UMC cross/flame logo and organization name
 - Clean, professional appearance suitable for church leadership demos
 - **Logo sizing**: UMC brand logo uses `h-20 w-auto` to maintain proper aspect ratio and text readability
+- **Loading states**: Consistent spinner design with UMC primary blue and professional messaging
+- **Error handling**: Graceful degradation with retry options, not disruptive to demo flow
 
 ### Tailwind CSS v4 Implementation
 Colors and fonts are defined in `src/app/globals.css` using the `@theme inline` directive:
@@ -209,6 +215,13 @@ The application uses a mixed layout approach optimized for different page types:
 
 ## Troubleshooting
 
+### Demo Performance Issues
+For slow page loads during demos:
+1. **Run pre-warming script**: `./scripts/warm-pages.sh` before every demo session
+2. **Root cause**: Slowness is typically Next.js compilation (8-26s), not database queries (50-200ms)
+3. **After warming**: All pages should load in <500ms consistently
+4. **Check compilation**: Monitor server logs for "Compiling" messages indicating cold starts
+
 ### Performance and Rendering Issues
 If the secretary dashboard has performance issues or display problems:
 1. Check for JavaScript syntax errors in browser console (especially template literal escaping)
@@ -227,6 +240,7 @@ Various TypeScript scripts in `/scripts/` for database management:
 - `populate-real-bod-paragraphs.ts` - Load authentic BoD content
 - `check-committee-duplicates.ts` - Verify data integrity
 - `fix-committee-duplicates-final.ts` - Clean duplicate committee records (handles FK relationships)
+- `warm-pages.sh` - Pre-compile all pages for demo performance (eliminates 1-26s delays)
 - `remove-petition-text-column.ts` - Migration script (historical)
 
 **Legacy Scripts (DO NOT USE):**
