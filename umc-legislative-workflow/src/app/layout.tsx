@@ -16,6 +16,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "UMC Legislative Workflow - Open Hearts. Open Minds. Open Doors.",
   description: "Submit and manage legislative petitions for The United Methodist Church General Conference",
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

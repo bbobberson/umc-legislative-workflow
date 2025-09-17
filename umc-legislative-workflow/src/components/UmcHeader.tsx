@@ -19,6 +19,7 @@ export default function UmcHeader({ showBackButton = false, backButtonText = "Ba
   const isRecorderPage = pathname === '/recorder'
   const isRecorderVotePage = pathname?.includes('/recorder/vote/')
   const isRecorderApprovePage = pathname?.includes('/recorder/approve/')
+  const isHomePage = pathname === '/'
   const shouldShowBackButton = showBackButton || isPetitionPage || isSecretaryPage || isSubmitPage || isRecorderPage || isRecorderVotePage || isRecorderApprovePage
   
   let finalBackButtonText = backButtonText
@@ -70,6 +71,17 @@ export default function UmcHeader({ showBackButton = false, backButtonText = "Ba
               </div>
             )}
           </div>
+
+          {/* Right side: InfoWorks logo (homepage only) */}
+          {isHomePage && (
+            <div className="flex items-center">
+              <img 
+                src="/infoworks-logo.svg" 
+                alt="InfoWorks" 
+                className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity duration-300"
+              />
+            </div>
+          )}
         </div>
       </div>
     </header>
