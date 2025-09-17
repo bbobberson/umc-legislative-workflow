@@ -120,17 +120,21 @@ export default function SecretaryDashboard() {
         message: title ? `Petition "${decodeURIComponent(title)}" saved successfully!` : 'Petition saved successfully!'
       })
       
-      // Auto-hide toast after 4 seconds
+      // Clear URL parameters immediately
+      window.history.replaceState({}, '', '/secretary')
+    }
+  }, [searchParams])
+
+  // Auto-hide toast after 4 seconds whenever it's shown
+  useEffect(() => {
+    if (toast.show) {
       const timer = setTimeout(() => {
         setToast({ show: false, message: '' })
       }, 4000)
       
-      // Clear URL parameters
-      window.history.replaceState({}, '', '/secretary')
-      
       return () => clearTimeout(timer)
     }
-  }, [searchParams])
+  }, [toast.show])
 
   // Close popovers when clicking outside
   useEffect(() => {
@@ -265,8 +269,8 @@ export default function SecretaryDashboard() {
 
   const selectAllVisible = (selectAll: boolean) => {
     if (selectAll) {
-      const visibleUnassigned = filteredPetitions.filter(p => p.status !== 'assigned').map(p => p.id)
-      setSelectedPetitions(new Set(visibleUnassigned))
+      const visibleUnderReview = filteredPetitions.filter(p => p.status === 'under_review').map(p => p.id)
+      setSelectedPetitions(new Set(visibleUnderReview))
     } else {
       setSelectedPetitions(new Set())
     }
@@ -401,8 +405,8 @@ export default function SecretaryDashboard() {
     }
   }
 
-  const visibleUnassigned = filteredPetitions.filter(p => p.status !== 'assigned')
-  const allVisibleUnassignedSelected = visibleUnassigned.length > 0 && visibleUnassigned.every(p => selectedPetitions.has(p.id))
+  const visibleUnderReview = filteredPetitions.filter(p => p.status === 'under_review')
+  const allVisibleUnderReviewSelected = visibleUnderReview.length > 0 && visibleUnderReview.every(p => selectedPetitions.has(p.id))
   const suggestedCommittee = getCommitteeSuggestion(selectedPetitions)
 
   // Virtual scrolling setup
@@ -423,7 +427,7 @@ export default function SecretaryDashboard() {
     >
       {/* Checkbox column */}
       <div className="flex-shrink-0 w-14 px-6 py-4 flex justify-center">
-        {petition.status !== 'assigned' && (
+        {petition.status === 'under_review' && (
           <input
             type="checkbox"
             checked={selectedPetitions.has(petition.id)}
@@ -741,10 +745,10 @@ export default function SecretaryDashboard() {
                   <div className="bg-gray-50 border-b border-gray-200">
                     <div className="flex items-center" style={{ height: '48px' }}>
                       <div className="flex-shrink-0 w-14 px-6 py-3 flex justify-center">
-                        {visibleUnassigned.length > 0 && (
+                        {visibleUnderReview.length > 0 && (
                           <input
                             type="checkbox"
-                            checked={allVisibleUnassignedSelected}
+                            checked={allVisibleUnderReviewSelected}
                             onChange={(e) => selectAllVisible(e.target.checked)}
                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                           />
