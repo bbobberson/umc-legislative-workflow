@@ -29,6 +29,16 @@ export default function RecorderPage() {
     loadData()
   }, [])
 
+  // Restore selected committee after committees are loaded
+  useEffect(() => {
+    if (committees.length > 0) {
+      const savedCommittee = sessionStorage.getItem('selectedCommittee')
+      if (savedCommittee && committees.find(c => c.id === savedCommittee)) {
+        setSelectedCommittee(savedCommittee)
+      }
+    }
+  }, [committees])
+
   const loadData = async () => {
     try {
       const [committeesRes, petitionsRes] = await Promise.all([
@@ -90,7 +100,10 @@ export default function RecorderPage() {
                   return (
                     <button
                       key={committee.id}
-                      onClick={() => setSelectedCommittee(committee.id)}
+                      onClick={() => {
+                        setSelectedCommittee(committee.id)
+                        sessionStorage.setItem('selectedCommittee', committee.id)
+                      }}
                       className={`w-full text-left p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
                         isSelected
                           ? 'border-primary bg-primary-50 shadow-sm'

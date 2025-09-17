@@ -3,6 +3,13 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 
+interface Amendment {
+  type: 'insert' | 'delete'
+  position: number
+  originalText?: string
+  newText?: string
+}
+
 interface CommitteeVote {
   id: string
   petition_id: string
@@ -30,15 +37,46 @@ export default function ApprovalPage() {
   const params = useParams()
   const router = useRouter()
   const [vote, setVote] = useState<CommitteeVote | null>(null)
+  const [petitionData, setPetitionData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [approverName, setApproverName] = useState('')
   const [approverRole, setApproverRole] = useState<'chair' | 'secretary' | 'vice_chair'>('chair')
 
+  const generateVisualDiff = (originalText: string, amendments: Amendment[]): string => {
+    if (!amendments || amendments.length === 0) {
+      return originalText
+    }
+    // Sort amendments by position (descending) to apply them from end to beginning
+    const sortedAmendments = [...amendments].sort((a, b) => b.position - a.position)
+    
+    let result = originalText
+    
+    for (const amendment of sortedAmendments) {
+      if (amendment.type === 'insert' && amendment.newText) {
+        // Insert with underline formatting
+        const before = result.substring(0, amendment.position)
+        const after = result.substring(amendment.position)
+        result = before + `<span style="text-decoration: underline; color: #059669; font-weight: 500;">${amendment.newText}</span>` + after
+      } else if (amendment.type === 'delete' && amendment.originalText) {
+        // Find and mark deleted text with strikethrough
+        const deleteStart = amendment.position
+        const deleteEnd = amendment.position + amendment.originalText.length
+        const before = result.substring(0, deleteStart)
+        const after = result.substring(deleteEnd)
+        result = before + `<span style="text-decoration: line-through; color: #DC2626;">${amendment.originalText}</span>` + after
+      }
+    }
+    
+    return result
+  }
+
   useEffect(() => {
     if (params.id) {
       loadVoteData(params.id as string)
     }
+    // Scroll to top when page loads
+    window.scrollTo(0, 0)
   }, [params.id])
 
   const loadVoteData = async (voteId: string) => {
@@ -46,6 +84,14 @@ export default function ApprovalPage() {
       const response = await fetch(`/api/committee-votes/${voteId}`)
       const voteData = await response.json()
       setVote(voteData)
+      
+      // Fetch petition data to get amendment details
+      if (voteData.petition_id) {
+        const petitionResponse = await fetch(`/api/petitions/${voteData.petition_id}`)
+        const petition = await petitionResponse.json()
+        setPetitionData(petition)
+      }
+      
       setLoading(false)
     } catch (error) {
       console.error('Error loading vote:', error)
@@ -93,12 +139,24 @@ export default function ApprovalPage() {
   if (!vote) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto py-8 px-4">
+        <div className="max-w-7xl mx-auto py-8 px-6">
+          {/* Back Button */}
+          <div className="mb-6">
+            <button 
+              onClick={() => router.push('/recorder')}
+              className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors duration-200"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Recorder
+            </button>
+          </div>
           <div className="bg-white rounded-lg shadow p-8 text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Vote Record Not Found</h2>
             <button 
               onClick={() => router.push('/recorder')}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 cursor-pointer"
+              className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover hover:shadow-lg transform hover:scale-105 transition-all duration-200 cursor-pointer font-medium"
             >
               Return to Recorder
             </button>
@@ -120,67 +178,90 @@ export default function ApprovalPage() {
       <div className="max-w-4xl mx-auto py-8 px-4">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 font-trade">
+          <h1 className="text-3xl font-bold text-gray-900 font-trade">
             Committee Vote Approval
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-700 mt-2">
             Digital signature required to complete Form A process
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        {/* Proposed Amendment */}
+        {petitionData && petitionData.petition && (petitionData.petition.original_paragraph_text && petitionData.petition.amendment_data) && (
+          <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 font-trade">Proposed Amendment</h3>
+            <div className="bg-gray-50 rounded-lg p-4 text-sm">
+              <div 
+                className="text-gray-800 leading-relaxed"
+                dangerouslySetInnerHTML={{ 
+                  __html: generateVisualDiff(petitionData.petition.original_paragraph_text, petitionData.petition.amendment_data)
+                }}
+              />
+              <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500">
+                <span className="inline-block mr-4">
+                  <span className="line-through text-red-600">Strikethrough</span> = deleted text
+                </span>
+                <span className="inline-block">
+                  <span className="underline text-green-600 font-medium">Underline</span> = added text
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="grid lg:grid-cols-2 gap-8">
           {/* Vote Summary */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="font-semibold text-gray-900 mb-4 font-trade">Vote Summary</h3>
+          <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 p-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 font-trade">Vote Summary</h3>
             
             <div className="space-y-4">
               <div>
-                <span className="text-sm text-gray-500">Committee:</span>
-                <p className="font-medium">{vote.committee_name}</p>
+                <span className="text-sm font-medium text-gray-700">Committee:</span>
+                <p className="font-semibold text-gray-900">{vote.committee_name}</p>
               </div>
               
               <div>
-                <span className="text-sm text-gray-500">Petition:</span>
-                <p className="font-medium">{vote.petition_title}</p>
+                <span className="text-sm font-medium text-gray-700">Petition:</span>
+                <p className="font-semibold text-gray-900">{vote.petition_title}</p>
               </div>
               
               <div>
-                <span className="text-sm text-gray-500">Committee Action:</span>
-                <p className="font-medium">{actionLabels[vote.action as keyof typeof actionLabels]}</p>
+                <span className="text-sm font-medium text-gray-700">Committee Action:</span>
+                <p className="font-semibold text-gray-900">{actionLabels[vote.action as keyof typeof actionLabels]}</p>
               </div>
               
               <div className="grid grid-cols-4 gap-2 pt-2">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-green-600">{vote.vote_tally.yes}</div>
-                  <div className="text-xs text-gray-500">Yes</div>
+                  <div className="text-2xl font-bold text-green-600">{vote.vote_tally.yes}</div>
+                  <div className="text-sm font-medium text-gray-700">Yes</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-red-600">{vote.vote_tally.no}</div>
-                  <div className="text-xs text-gray-500">No</div>
+                  <div className="text-2xl font-bold text-red-600">{vote.vote_tally.no}</div>
+                  <div className="text-sm font-medium text-gray-700">No</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-gray-600">{vote.vote_tally.abstain}</div>
-                  <div className="text-xs text-gray-500">Abstain</div>
+                  <div className="text-2xl font-bold text-gray-600">{vote.vote_tally.abstain}</div>
+                  <div className="text-sm font-medium text-gray-700">Abstain</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-blue-600">{vote.vote_tally.present}</div>
-                  <div className="text-xs text-gray-500">Present</div>
+                  <div className="text-2xl font-bold text-blue-600">{vote.vote_tally.present}</div>
+                  <div className="text-sm font-medium text-gray-700">Present</div>
                 </div>
               </div>
 
               {vote.amendment_text && (
                 <div>
-                  <span className="text-sm text-gray-500">Amendment Notes:</span>
-                  <div className="bg-gray-50 rounded p-3 mt-1 text-sm">
+                  <span className="text-sm font-medium text-gray-700">Amendment Notes:</span>
+                  <div className="bg-gray-50 rounded-lg p-4 mt-2 text-gray-900">
                     {vote.amendment_text}
                   </div>
                 </div>
               )}
 
-              <div className="pt-2 border-t">
-                <span className="text-sm text-gray-500">Recorded by:</span>
-                <p className="font-medium">{vote.recorded_by}</p>
-                <p className="text-xs text-gray-500">
+              <div className="pt-4 border-t border-gray-200">
+                <span className="text-sm font-medium text-gray-700">Recorded by:</span>
+                <p className="font-semibold text-gray-900">{vote.recorded_by}</p>
+                <p className="text-sm text-gray-600 mt-1">
                   {new Date(vote.recorded_date).toLocaleString()}
                 </p>
               </div>
@@ -201,7 +282,7 @@ export default function ApprovalPage() {
           </div>
 
           {/* Approval Form */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200 p-8">
             {vote.approved ? (
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -221,7 +302,7 @@ export default function ApprovalPage() {
               </div>
             ) : (
               <form onSubmit={handleApprove}>
-                <h3 className="font-semibold text-gray-900 mb-4 font-trade">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-trade">
                   Committee Leadership Approval
                 </h3>
                 
@@ -233,7 +314,7 @@ export default function ApprovalPage() {
                     <select
                       value={approverRole}
                       onChange={(e) => setApproverRole(e.target.value as typeof approverRole)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-gray-900"
                     >
                       <option value="chair">Committee Chair</option>
                       <option value="vice_chair">Committee Vice Chair</option>
@@ -250,7 +331,7 @@ export default function ApprovalPage() {
                       required
                       value={approverName}
                       onChange={(e) => setApproverName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-gray-900"
                       placeholder="Enter your full name"
                     />
                   </div>
@@ -270,10 +351,10 @@ export default function ApprovalPage() {
                   <button
                     type="submit"
                     disabled={submitting || !approverName.trim()}
-                    className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+                    className={`w-full py-4 rounded-lg font-semibold transition-all duration-200 ${
                       submitting || !approverName.trim()
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-primary text-white hover:bg-primary-600 cursor-pointer'
+                        : 'bg-primary text-white hover:bg-primary-hover hover:shadow-lg transform hover:scale-[1.02] cursor-pointer'
                     }`}
                   >
                     {submitting ? 'Processing...' : 'Approve and Sign'}
