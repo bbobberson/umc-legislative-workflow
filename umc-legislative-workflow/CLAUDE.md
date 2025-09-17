@@ -70,6 +70,11 @@ Key design decisions:
 - "Return to Submitter" secondary action for workflow discussions
 - Enhanced Secretary Review panel with improved visual hierarchy
 - Full-width layouts for better screen utilization on modern displays
+- **Enhanced Search Capabilities**: Comprehensive search across all table columns including:
+  - Financial impact search with partial matching ("finan", "financial")
+  - Petition type search (D/C/R/O and full names like "disciplinary", "constitutional") 
+  - Committee name search (leverages existing API JOIN)
+  - All existing fields: title, submitter, organization, BoD paragraph, amendment text
 
 ## Common Development Commands
 
@@ -199,10 +204,18 @@ Colors and fonts are defined in `src/app/globals.css` using the `@theme inline` 
 
 ### Layout System
 The application uses a mixed layout approach optimized for different page types:
-- **Home page**: Centered container layout (`container mx-auto`) for marketing feel
+- **Home page**: Premium demo presentation with glass morphism cards, fade-in animations, and hover effects
 - **Application pages**: Full-width layout (`max-w-7xl mx-auto`) for data-dense interfaces
-- **Submit page**: Full-width with optimized 3-column form layout for petition details
+- **Submit page**: Full-width with optimized 3-column form layout and 19 diverse test data variations
 - **Secretary pages**: Full-width with enhanced card layouts and proper visual hierarchy
+
+### Demo-Ready Homepage Features
+- Glass morphism cards with backdrop blur and subtle gradients
+- Smooth fade-in animations with staggered timing for professional impact
+- Hover effects including scale transforms, shadow enhancement, and color transitions
+- Live demo environment indicator with pulsing status
+- Forward-looking messaging: "Built for General Conference 2028"
+- Eliminates repetitive messaging for clean, professional copy
 
 ## Development Notes
 
@@ -217,10 +230,19 @@ The application uses a mixed layout approach optimized for different page types:
 
 ### Demo Performance Issues
 For slow page loads during demos:
-1. **Run pre-warming script**: `./scripts/warm-pages.sh` before every demo session
-2. **Root cause**: Slowness is typically Next.js compilation (8-26s), not database queries (50-200ms)
-3. **After warming**: All pages should load in <500ms consistently
-4. **Check compilation**: Monitor server logs for "Compiling" messages indicating cold starts
+1. **Run pre-warming script**: `./scripts/warm-pages.sh` AFTER dev server starts but BEFORE demo begins
+2. **Timing**: Run script when setting up in demo room, before client arrives
+3. **Root cause**: Slowness is typically Next.js compilation (8-26s), not database queries (50-200ms)
+4. **After warming**: All pages should load in <500ms consistently
+5. **Check compilation**: Monitor server logs for "Compiling" messages indicating cold starts
+
+### Submit Page Test Data
+The submit page includes 19 diverse test data variations accessible via the beaker button:
+- Covers realistic UMC legislative topics: housing allowances, climate justice, accessibility
+- Diverse submitter demographics from different annual conferences
+- Global representation including Nigeria Annual Conference and Korean Methodist Church
+- Topics include young adult ministry, LGBTQ+ inclusion, environmental justice, mental health
+- Eliminates repetitive test data for smoother demo flow
 
 ### Performance and Rendering Issues
 If the secretary dashboard has performance issues or display problems:

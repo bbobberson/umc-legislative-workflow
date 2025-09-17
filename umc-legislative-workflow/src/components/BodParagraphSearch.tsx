@@ -37,6 +37,14 @@ export default function BodParagraphSearch({ onSelect, selectedParagraph }: BodP
       })
   }, [])
 
+  // Reset search term when selectedParagraph becomes null
+  useEffect(() => {
+    if (selectedParagraph === null) {
+      setSearchTerm('')
+      setShowResults(false)
+    }
+  }, [selectedParagraph])
+
   // Filter paragraphs based on search term
   const filteredParagraphs = useMemo(() => {
     if (!searchTerm.trim()) return []

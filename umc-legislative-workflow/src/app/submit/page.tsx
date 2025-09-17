@@ -287,38 +287,55 @@ export default function SubmitPetition() {
     }
   }
 
-  if (isSubmitted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Petition Submitted!</h2>
-            <p className="text-gray-600 mb-6">
-              Your petition has been successfully submitted and will be reviewed by the petition secretary.
-            </p>
-            <div className="space-y-3">
-              <Link href="/submit" 
-                className="block w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors cursor-pointer">
-                Submit Another Petition
-              </Link>
-              <Link href="/" 
-                className="block w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition-colors cursor-pointer">
-                Return to Home
-              </Link>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Success Modal Overlay */}
+      {isSubmitted && (
+        <div 
+          className="fixed inset-0 overflow-y-auto h-full w-full z-50"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+        >
+          <div className="relative top-20 mx-auto p-8 border max-w-md shadow-xl rounded-lg bg-white">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Petition Submitted!</h2>
+              <p className="text-gray-600 mb-6">
+                Your petition has been successfully submitted and will be reviewed by the petition secretary.
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    setIsSubmitted(false)
+                    setFormData({
+                      title: '',
+                      submitterName: '',
+                      submitterEmail: '',
+                      submitterOrganization: '',
+                      bodParagraph: '',
+                      petitionText: '',
+                      rationale: ''
+                    })
+                    setSelectedParagraph(null)
+                    setAmendmentChanges([])
+                    setModifiedParagraphText('')
+                  }}
+                  className="block w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors cursor-pointer">
+                  Submit Another Petition
+                </button>
+                <Link href="/" 
+                  className="block w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition-colors cursor-pointer">
+                  Return to Home
+                </Link>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    )
-  }
+      )}
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="px-6 py-8 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
