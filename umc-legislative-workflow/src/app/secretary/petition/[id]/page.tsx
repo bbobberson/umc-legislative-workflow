@@ -326,14 +326,14 @@ export default function PetitionDetail() {
                   <button
                     onClick={saveChanges}
                     disabled={saving || !petitionType}
-                    className="w-full bg-primary text-white py-3 px-4 rounded-md hover:bg-primary-hover disabled:bg-primary-300 disabled:cursor-not-allowed font-medium text-sm"
+                    className="w-full bg-primary text-white py-3 px-4 rounded-md hover:bg-primary-hover disabled:bg-primary-300 disabled:cursor-not-allowed font-medium text-sm cursor-pointer"
                   >
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
 
                   <button
                     onClick={() => alert('Return to Submitter workflow - Demo feature')}
-                    className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-200 font-medium border border-gray-300 text-sm"
+                    className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-200 font-medium border border-gray-300 text-sm cursor-pointer"
                   >
                     Return to Submitter
                   </button>

@@ -98,7 +98,7 @@ export default function ApprovalPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Vote Record Not Found</h2>
             <button 
               onClick={() => router.push('/recorder')}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600"
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 cursor-pointer"
             >
               Return to Recorder
             </button>
@@ -273,7 +273,7 @@ export default function ApprovalPage() {
                     className={`w-full py-3 rounded-lg font-semibold transition-colors ${
                       submitting || !approverName.trim()
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-primary text-white hover:bg-primary-600'
+                        : 'bg-primary text-white hover:bg-primary-600 cursor-pointer'
                     }`}
                   >
                     {submitting ? 'Processing...' : 'Approve and Sign'}

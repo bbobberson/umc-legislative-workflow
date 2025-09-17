@@ -1,0 +1,2 @@
+cd /Users/joshrothman/Documents/projects/UMC/umc-legislative-workflow
+  ./scripts/warm-pages.sh

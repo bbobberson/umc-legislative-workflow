@@ -580,7 +580,7 @@ export default function SecretaryDashboard() {
                   <div className="relative">
                     <button
                       onClick={() => setShowWorkloadPopover(!showWorkloadPopover)}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 font-medium whitespace-nowrap"
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 font-medium whitespace-nowrap cursor-pointer"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -632,7 +632,7 @@ export default function SecretaryDashboard() {
                     <button
                       onClick={() => setShowAssignPopover(!showAssignPopover)}
                       disabled={selectedPetitions.size === 0}
-                      className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover disabled:bg-gray-300 disabled:cursor-not-allowed font-medium whitespace-nowrap"
+                      className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover disabled:bg-gray-300 disabled:cursor-not-allowed font-medium whitespace-nowrap cursor-pointer"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -659,7 +659,7 @@ export default function SecretaryDashboard() {
                               <button
                                 key={committee.id}
                                 onClick={() => handleCommitteeSelection(committee.id, committee.name)}
-                                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
                               >
                                 {committee.name}
                                 <span className="text-xs text-gray-500 ml-2">
@@ -688,7 +688,7 @@ export default function SecretaryDashboard() {
                       setStatusFilter('all')
                       setSelectedPetitions(new Set())
                     }}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
                   >
                     Clear Filters
                   </button>
@@ -736,35 +736,35 @@ export default function SecretaryDashboard() {
                       </div>
                       <button
                         onClick={() => handleSort('title')}
-                        className="flex-1 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-md hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                        className="flex-1 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-md hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 cursor-pointer"
                       >
                         Petition
                         <SortIcon field="title" />
                       </button>
                       <button
                         onClick={() => handleSort('petition_type')}
-                        className="flex-shrink-0 w-36 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                        className="flex-shrink-0 w-36 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 cursor-pointer"
                       >
                         Type
                         <SortIcon field="petition_type" />
                       </button>
                       <button
                         onClick={() => handleSort('status')}
-                        className="flex-shrink-0 w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                        className="flex-shrink-0 w-32 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 cursor-pointer"
                       >
                         Status
                         <SortIcon field="status" />
                       </button>
                       <button
                         onClick={() => handleSort('bod_paragraph')}
-                        className="flex-shrink-0 w-28 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+                        className="flex-shrink-0 w-28 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                       >
                         BoD Ref
                         <SortIcon field="bod_paragraph" />
                       </button>
                       <button
                         onClick={() => handleSort('committee_name')}
-                        className="flex-shrink-0 w-44 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
+                        className="flex-shrink-0 w-44 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2 cursor-pointer"
                       >
                         Committee
                         <SortIcon field="committee_name" />
@@ -830,14 +830,14 @@ export default function SecretaryDashboard() {
                   <button
                     onClick={() => setConfirmationModal({ isOpen: false, committeeId: '', committeeName: '', petitionCount: 0 })}
                     disabled={assigning}
-                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:bg-gray-50 text-sm font-medium"
+                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 disabled:bg-gray-50 text-sm font-medium cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={confirmAssignment}
                     disabled={assigning}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400 text-sm font-medium"
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-400 text-sm font-medium cursor-pointer"
                   >
                     {assigning ? 'Assigning...' : 'Confirm'}
                   </button>

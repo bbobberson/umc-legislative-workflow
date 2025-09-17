@@ -91,7 +91,7 @@ export default function RecorderPage() {
                     <button
                       key={committee.id}
                       onClick={() => setSelectedCommittee(committee.id)}
-                      className={`w-full text-left p-4 rounded-lg border transition-all duration-200 ${
+                      className={`w-full text-left p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
                         isSelected
                           ? 'border-primary bg-primary-50 shadow-sm'
                           : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
@@ -183,7 +183,7 @@ export default function RecorderPage() {
                           </div>
                           <button 
                             onClick={() => window.location.href = `/recorder/vote/${petition.id}`}
-                            className="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors"
+                            className="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors cursor-pointer"
                           >
                             Record Vote
                           </button>

@@ -198,7 +198,7 @@ export default function VoteRecordingPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Petition Not Found</h2>
             <button 
               onClick={() => router.push('/recorder')}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600"
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 cursor-pointer"
             >
               Return to Recorder
             </button>
@@ -326,7 +326,7 @@ export default function VoteRecordingPage() {
                         key={action.value}
                         type="button"
                         onClick={() => updateVoteData('action', action.value as VoteData['action'])}
-                        className={`px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 border-2 ${
+                        className={`px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 border-2 cursor-pointer ${
                           isSelected 
                             ? `${action.selectedBg} ${action.selectedText} border-gray-300 shadow-md` 
                             : `${action.unselectedBg} ${action.unselectedText} border-gray-300 hover:border-gray-400 hover:shadow-sm`
@@ -417,7 +417,7 @@ export default function VoteRecordingPage() {
                           disabled={!minorityReportEligible}
                           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                             minorityReportEligible
-                              ? 'bg-primary text-white hover:bg-primary-600'
+                              ? 'bg-primary text-white hover:bg-primary-600 cursor-pointer'
                               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           }`}
                         >
