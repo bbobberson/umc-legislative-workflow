@@ -73,6 +73,141 @@ export default function SubmitPetition() {
       bodParagraph: '¶230',
       petitionText: 'Revise ¶230.4 to require that committees on lay leadership include at least one young adult (ages 18-35) and implement term limits of two consecutive three-year terms for all committee members except the chairperson.',
       rationale: 'Many committees lack diverse age representation and suffer from stagnation due to indefinite service terms. These changes will bring fresh perspectives and ensure broader participation in lay leadership development.'
+    },
+    {
+      title: 'Establish Young Adult Ministry Coordinator Position',
+      submitterName: 'Rev. Dr. Amanda Thompson',
+      submitterEmail: 'athompson@email.com',
+      submitterOrganization: 'Florida Annual Conference',
+      bodParagraph: '¶630',
+      petitionText: 'Create a mandatory Young Adult Ministry Coordinator position within each annual conference to develop programming, leadership development, and advocacy for young adults aged 18-35.',
+      rationale: 'Young adult participation in the UMC has declined significantly. Dedicated leadership positions are essential to reverse this trend and engage emerging generations in meaningful ministry.'
+    },
+    {
+      title: 'Add Environmental Impact Assessment to Building Projects',
+      submitterName: 'Dr. Patricia Williams',
+      submitterEmail: 'pwilliams@email.com',
+      submitterOrganization: 'New England Annual Conference',
+      bodParagraph: '¶2544',
+      petitionText: 'Require environmental impact assessments for all church construction and major renovation projects exceeding $500,000, with mandatory consideration of sustainable building practices and renewable energy systems.',
+      rationale: 'Church construction should reflect our commitment to creation care. Environmental assessments ensure responsible stewardship of resources while reducing long-term operational costs.'
+    },
+    {
+      title: 'Extend Probationary Member Service Period Options',
+      submitterName: 'Rev. James Chen',
+      submitterEmail: 'jchen@email.com',
+      submitterOrganization: 'Desert Southwest Annual Conference',
+      bodParagraph: '¶324',
+      petitionText: 'Expand probationary member service options to include specialized ministries such as chaplaincy, social justice advocacy, and community organizing as valid pathways toward ordination.',
+      rationale: 'The changing landscape of ministry requires recognition of diverse service expressions. Specialized ministries provide valuable preparation for ordained leadership while addressing critical community needs.'
+    },
+    {
+      title: 'Add LGBTQ+ Inclusive Language to Wedding Liturgy',
+      submitterName: 'Rev. Dr. Samuel Park',
+      submitterEmail: 'spark@email.com',
+      submitterOrganization: 'Pacific Northwest Annual Conference',
+      bodParagraph: '¶340',
+      petitionText: 'Include optional gender-neutral and inclusive language alternatives in the official wedding liturgy to ensure all couples feel welcomed and affirmed in United Methodist ceremonies.',
+      rationale: 'Liturgical language should reflect the full diversity of God\'s creation. Inclusive options allow clergy and couples to celebrate marriage in ways that honor their identities and relationships.'
+    },
+    {
+      title: 'Expand Housing Allowance Flexibility for Retired Clergy',
+      submitterName: 'Rev. Betty Anderson',
+      submitterEmail: 'banderson@email.com',
+      submitterOrganization: 'Great Plains Annual Conference',
+      bodParagraph: '¶1506',
+      petitionText: 'Allow retired clergy to designate housing allowances for rental payments, mortgage interest, and home equity loan payments without requiring property ownership documentation.',
+      rationale: 'Many retired clergy live in diverse housing arrangements. Current restrictions create unnecessary administrative burden and may disadvantage those who choose rental housing or alternative living situations.'
+    },
+    {
+      title: 'Require Inclusive Language in Official Documents',
+      submitterName: 'Dr. Maria Gonzalez',
+      submitterEmail: 'mgonzalez@email.com',
+      submitterOrganization: 'Rio Texas Annual Conference',
+      bodParagraph: '¶804',
+      petitionText: 'Mandate the use of inclusive language regarding gender, race, ability, and economic status in all official United Methodist publications, liturgies, and administrative documents.',
+      rationale: 'Language shapes perception and belonging. Official church communications should model the inclusive love of Christ and welcome all people regardless of their background or identity.'
+    },
+    {
+      title: 'Add Sanctuary Church Guidelines to Social Principles',
+      submitterName: 'Rev. Dr. Carlos Ruiz',
+      submitterEmail: 'cruiz@email.com',
+      submitterOrganization: 'California-Nevada Annual Conference',
+      bodParagraph: '¶162',
+      petitionText: 'Establish guidelines for congregations seeking to provide sanctuary to immigrants facing deportation, including legal protections and conference-level support systems.',
+      rationale: 'Biblical hospitality calls us to welcome the stranger. Clear guidelines will help congregations respond faithfully to immigration crises while protecting both congregations and vulnerable individuals.'
+    },
+    {
+      title: 'Increase Judicial Council Geographic Diversity',
+      submitterName: 'Judge Rachel Kim',
+      submitterEmail: 'rkim@email.com',
+      submitterOrganization: 'Korean Methodist Church',
+      bodParagraph: '¶2601',
+      petitionText: 'Require that Judicial Council membership include at least one representative from each central conference region to ensure global perspective in constitutional interpretation.',
+      rationale: 'The UMC is a global church requiring diverse perspectives in judicial decisions. Regional representation ensures that constitutional interpretations consider varied cultural and contextual factors.'
+    },
+    {
+      title: 'Add Technology Training to General Conference Preparation',
+      submitterName: 'Rev. David Okonkwo',
+      submitterEmail: 'dokonkwo@email.com',
+      submitterOrganization: 'Nigeria Annual Conference',
+      bodParagraph: '¶501',
+      petitionText: 'Mandate technology literacy training for all General Conference delegates to ensure effective participation in hybrid and digital voting systems.',
+      rationale: 'Digital participation barriers disadvantage delegates from areas with limited technology access. Comprehensive training ensures equal participation and informed decision-making for all delegates.'
+    },
+    {
+      title: 'Extend Rural Church Support Fund Duration',
+      submitterName: 'Rev. Dr. Lisa Henderson',
+      submitterEmail: 'lhenderson@email.com',
+      submitterOrganization: 'West Virginia Annual Conference',
+      bodParagraph: '¶629',
+      petitionText: 'Extend the maximum duration for rural church support funding from three to five years, with option for two-year extensions based on demonstrated progress toward sustainability.',
+      rationale: 'Rural church revitalization requires longer timeframes than current policies allow. Extended support periods enable meaningful community development and sustainable ministry growth.'
+    },
+    {
+      title: 'Simplify Ordination Interview Process for Second Career Candidates',
+      submitterName: 'Dr. Robert Taylor',
+      submitterEmail: 'rtaylor@email.com',
+      submitterOrganization: 'Illinois Great Rivers Annual Conference',
+      bodParagraph: '¶310',
+      petitionText: 'Streamline the ordination interview process for candidates over 45 with significant professional experience, reducing redundant assessments while maintaining spiritual formation requirements.',
+      rationale: 'Second career candidates bring valuable life experience to ministry. Simplified processes recognize their professional competency while ensuring appropriate spiritual preparation for ordained leadership.'
+    },
+    {
+      title: 'Add Gender Identity Protection to Non-Discrimination Policies',
+      submitterName: 'Rev. Taylor Brooks',
+      submitterEmail: 'tbrooks@email.com',
+      submitterOrganization: 'Baltimore-Washington Annual Conference',
+      bodParagraph: '¶4',
+      petitionText: 'Include gender identity and expression as protected categories in all United Methodist non-discrimination policies for employment, membership, and leadership positions.',
+      rationale: 'All people are created in God\'s image and deserve protection from discrimination. Explicit inclusion of gender identity ensures that transgender and non-binary individuals are fully welcomed in church life.'
+    },
+    {
+      title: 'Expand Climate Action Requirements for Conferences',
+      submitterName: 'Dr. Jennifer Martinez',
+      submitterEmail: 'jmartinez@email.com',
+      submitterOrganization: 'Mountain Sky Annual Conference',
+      bodParagraph: '¶629',
+      petitionText: 'Require all annual conferences to develop and implement climate action plans with measurable goals for carbon reduction, renewable energy adoption, and environmental justice advocacy.',
+      rationale: 'Climate change demands coordinated action across all levels of the church. Conference-level commitments ensure systematic progress toward environmental sustainability and creation care.'
+    },
+    {
+      title: 'Require Mental Health First Aid Training for Clergy',
+      submitterName: 'Rev. Dr. Mark Johnson',
+      submitterEmail: 'mjohnson@email.com',
+      submitterOrganization: 'North Georgia Annual Conference',
+      bodParagraph: '¶340',
+      petitionText: 'Mandate Mental Health First Aid certification for all ordained clergy and require annual conferences to provide training resources and ongoing education opportunities.',
+      rationale: 'Mental health crises are increasing in our communities. Clergy need proper training to recognize warning signs, provide appropriate initial response, and connect people with professional resources.'
+    },
+    {
+      title: 'Add Accessibility Standards to Building Requirements',
+      submitterName: 'Rev. Susan Rodriguez',
+      submitterEmail: 'srodriguez@email.com',
+      submitterOrganization: 'New Mexico Annual Conference',
+      bodParagraph: '¶2544',
+      petitionText: 'Establish mandatory accessibility standards exceeding ADA requirements for all church construction and renovation projects, including sensory accessibility for neurodivergent individuals.',
+      rationale: 'True accessibility goes beyond legal compliance. Enhanced standards ensure that all people, regardless of physical or cognitive differences, can fully participate in worship and fellowship.'
     }
   ]
 
