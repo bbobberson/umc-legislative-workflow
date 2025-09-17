@@ -178,6 +178,13 @@ export default function SecretaryDashboard() {
       // Search filter
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase()
+        
+        // Special handling for financial impact search
+        if (query.includes('financial') || 'financial'.includes(query)) {
+          return petition.financial_impact === true
+        }
+        
+        // Build searchable content
         const searchableFields = [
           petition.title,
           petition.submitter_name,
@@ -186,9 +193,18 @@ export default function SecretaryDashboard() {
           petition.committee_name || '',
           petition.original_paragraph_text || '',
           petition.modified_paragraph_text || ''
-        ].join(' ').toLowerCase()
+        ]
         
-        if (!searchableFields.includes(query)) return false
+        // Add petition type search (both codes and full names)
+        const typeSearchTerms = []
+        if (petition.petition_type === 'D') typeSearchTerms.push('d', 'disciplinary', 'discipline')
+        if (petition.petition_type === 'C') typeSearchTerms.push('c', 'constitutional', 'constitution')
+        if (petition.petition_type === 'R') typeSearchTerms.push('r', 'resolution')
+        if (petition.petition_type === 'O') typeSearchTerms.push('o', 'other')
+        
+        const searchableContent = [...searchableFields, ...typeSearchTerms].join(' ').toLowerCase()
+        
+        if (!searchableContent.includes(query)) return false
       }
       
       return true
