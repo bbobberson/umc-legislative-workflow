@@ -92,10 +92,10 @@ export default function SecretaryDashboard() {
           self.findIndex(c => c.id === committee.id) === index
         )
         
-        // Calculate petition counts per unique committee
+        // Calculate petition counts per unique committee (only assigned petitions)
         const committeeCounts = uniqueCommittees.map((committee: Committee) => ({
           ...committee,
-          petition_count: petitionsArray.filter((p: Petition) => p.committee_id === committee.id).length
+          petition_count: petitionsArray.filter((p: Petition) => p.committee_id === committee.id && p.status === 'assigned').length
         }))
         
         setPetitions(petitionsArray)

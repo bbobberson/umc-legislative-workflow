@@ -50,7 +50,9 @@ export default function RecorderPage() {
       const petitionsResponse = await petitionsRes.json()
       
       setCommittees(committeesResponse.committees || [])
-      setPetitions((petitionsResponse.petitions || []).filter((p: Petition) => p.status === 'assigned' || p.status === 'in_committee'))
+      setPetitions((petitionsResponse.petitions || []).filter((p: Petition) => 
+        p.status === 'assigned' || p.status === 'in_committee' || p.status === 'voted' || p.status === 'approved'
+      ))
       setLoading(false)
     } catch (error) {
       console.error('Error loading data:', error)
@@ -194,12 +196,18 @@ export default function RecorderPage() {
                               </p>
                             )}
                           </div>
-                          <button 
-                            onClick={() => window.location.href = `/recorder/vote/${petition.id}`}
-                            className="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors cursor-pointer"
-                          >
-                            Record Vote
-                          </button>
+                          {petition.status === 'voted' || petition.status === 'approved' ? (
+                            <div className="ml-4 px-4 py-2 bg-green-100 text-green-800 rounded-lg font-medium">
+                              ✓ Completed
+                            </div>
+                          ) : (
+                            <button 
+                              onClick={() => window.location.href = `/recorder/vote/${petition.id}`}
+                              className="ml-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors cursor-pointer"
+                            >
+                              Record Vote
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))}
